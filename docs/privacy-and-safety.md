@@ -22,8 +22,10 @@ with you or erase it, keyring entries included.
 ## What's sent to an AI provider
 
 Only when AI is turned on, and only the minimum needed: interest areas, minutes per day,
-accessibility limits, skill levels and recent task titles. Never notes, history,
-or anything that identifies you. A local model (Ollama, LM Studio) keeps even that on your machine.
+accessibility limits, skill levels and recent task titles. If you turn on
+`ai.reword_encouragement`, the message being reworded (which may name a task) and its tone
+are sent too. Never notes, history, or anything that identifies you. A local model
+(Ollama, LM Studio) keeps even that on your machine.
 
 ## Every task is safe
 
@@ -33,14 +35,15 @@ that's a review rule. For AI-written tasks it's enforced in code:
 - Output is checked against a strict format. Wrong area, a difficulty out of range,
   or a task longer than your daily time all mean it's rejected.
 - A safety filter rejects risky themes: heights, fire, fasting, extreme exertion,
-  money and investing, trespassing, alcohol and drugs.
+  money and investing, trespassing, alcohol and drugs, driving, open water, and
+  strangers' homes. It also re-checks the text against your accessibility limits.
 - Your accessibility limits are always respected, and never relaxed to fill a slot.
 - Anything rejected is replaced by a safe built-in task.
 
 ## Your terminal is safe too
 
-Text from a model, or anything you type, is cleaned of terminal escape codes
-before it's displayed, so nothing can mess with your terminal.
+Text from a model, or anything you type, is cleaned of terminal escape codes and
+formatting markup before it's displayed, so nothing can mess with your terminal.
 
 ## When you need more than a task
 

@@ -4,6 +4,7 @@ The database lives at ``~/.youtopia/youtopia.db`` by default. Set ``YOUTOPIA_HOM
 to use a different directory (tests do this to stay away from the real one).
 """
 
+import json
 import os
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -13,7 +14,7 @@ from pathlib import Path
 from sqlalchemy import Engine, inspect, text
 from sqlmodel import Session, SQLModel, create_engine
 
-from youtopia import models  # noqa: F401  (registers tables on SQLModel.metadata)
+from youtopia import models  # registers tables on SQLModel.metadata
 
 HOME_ENV_VAR = "YOUTOPIA_HOME"
 DB_FILENAME = "youtopia.db"
@@ -25,6 +26,10 @@ ADDED_COLUMNS = {
         "recent_declines": "INTEGER NOT NULL DEFAULT 0",
         "recent_misses": "INTEGER NOT NULL DEFAULT 0",
         "last_evaluated": "DATE",
+    },
+    "task": {
+        "source": "VARCHAR NOT NULL DEFAULT 'TEMPLATE'",  # enum values are stored by name
+        "declined_at": "DATETIME",
     },
 }
 
@@ -44,6 +49,7 @@ def _engine_for(path: Path) -> Engine:
     engine = create_engine(f"sqlite:///{path}")
     SQLModel.metadata.create_all(engine)
     _add_missing_columns(engine)
+    _rename_domains(engine)
     return engine
 
 
@@ -56,6 +62,29 @@ def _add_missing_columns(engine: Engine) -> None:
                 if name not in existing:
                     # Names and definitions are the constants above, never user input.
                     conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {definition}"))
+
+
+def _rename_domains(engine: Engine) -> None:
+    """Move stored data from the old area names to the current ones. Safe to rerun."""
+    renames = {old.upper(): new.name for old, new in models.LEGACY_DOMAIN_NAMES.items()}
+    with engine.begin() as conn:
+        for table in ("task", "skilllevel"):
+            for old, new in renames.items():
+                conn.execute(
+                    text(f"UPDATE {table} SET domain = :new WHERE domain = :old"),
+                    {"new": new, "old": old},
+                )
+        for profile_id, raw in conn.execute(text("SELECT id, interests FROM profile")).all():
+            interests = json.loads(raw)
+            updated = [
+                models.LEGACY_DOMAIN_NAMES[i].value if i in models.LEGACY_DOMAIN_NAMES else i
+                for i in interests
+            ]
+            if updated != interests:
+                conn.execute(
+                    text("UPDATE profile SET interests = :interests WHERE id = :id"),
+                    {"interests": json.dumps(updated), "id": profile_id},
+                )
 
 
 def get_engine() -> Engine:

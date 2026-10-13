@@ -5,9 +5,9 @@
 # when the user's accessibility limits rule one out. Known tags:
 #   standing, walking, kneeling, lifting, exertion, hands, vision, hearing, speaking, going_out
 
-# --- physical ---------------------------------------------------------------
+# --- labour -----------------------------------------------------------------
 - title: Shoulder and neck reset
-  domain: physical
+  domain: labour
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -17,7 +17,7 @@
   done_criteria: You finished one full round of rolls and tilts.
 
 - title: Five-minute stroll
-  domain: physical
+  domain: labour
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -27,7 +27,7 @@
   requires: [walking]
 
 - title: Seated strength set
-  domain: physical
+  domain: labour
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -36,7 +36,7 @@
   done_criteria: You completed two rounds.
 
 - title: Walk around the block
-  domain: physical
+  domain: labour
   difficulty: 2
   duration_minutes: 15
   instructions: >-
@@ -46,7 +46,7 @@
   requires: [walking, going_out]
 
 - title: Kitchen-counter circuit
-  domain: physical
+  domain: labour
   difficulty: 3
   duration_minutes: 15
   instructions: >-
@@ -56,7 +56,7 @@
   requires: [standing, exertion]
 
 - title: Gentle follow-along stretch
-  domain: physical
+  domain: labour
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -65,7 +65,7 @@
   done_criteria: You followed the session to the end.
 
 - title: Brisk walk with intervals
-  domain: physical
+  domain: labour
   difficulty: 4
   duration_minutes: 25
   instructions: >-
@@ -75,7 +75,7 @@
   requires: [walking, going_out, exertion]
 
 - title: Design your own mobility routine
-  domain: physical
+  domain: labour
   difficulty: 4
   duration_minutes: 20
   instructions: >-
@@ -84,7 +84,7 @@
   done_criteria: Your routine is written down and you did it twice.
 
 - title: Thirty-minute workout of your choice
-  domain: physical
+  domain: labour
   difficulty: 5
   duration_minutes: 30
   instructions: >-
@@ -94,7 +94,7 @@
   requires: [exertion]
 
 - title: Active outing
-  domain: physical
+  domain: labour
   difficulty: 5
   duration_minutes: 45
   instructions: >-
@@ -103,9 +103,9 @@
   done_criteria: You reached your destination and made it home.
   requires: [walking, going_out, exertion]
 
-# --- creative ---------------------------------------------------------------
+# --- production -------------------------------------------------------------
 - title: Draw the nearest object
-  domain: creative
+  domain: production
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -114,7 +114,7 @@
   requires: [hands, vision]
 
 - title: Six-word story
-  domain: creative
+  domain: production
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -123,7 +123,7 @@
   done_criteria: You have a favourite six-word story.
 
 - title: Haiku about today
-  domain: creative
+  domain: production
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -131,7 +131,7 @@
   done_criteria: Your haiku is written or recorded.
 
 - title: Three textures
-  domain: creative
+  domain: production
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -141,7 +141,7 @@
   requires: [vision]
 
 - title: One-page story
-  domain: creative
+  domain: production
   difficulty: 3
   duration_minutes: 25
   instructions: >-
@@ -150,7 +150,7 @@
   done_criteria: The story has a beginning, a middle and an end.
 
 - title: A playlist that tells a story
-  domain: creative
+  domain: production
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -160,7 +160,7 @@
   requires: [hearing]
 
 - title: One scene, three ways
-  domain: creative
+  domain: production
   difficulty: 4
   duration_minutes: 30
   instructions: >-
@@ -170,7 +170,7 @@
   requires: [hands, vision]
 
 - title: New words to an old tune
-  domain: creative
+  domain: production
   difficulty: 4
   duration_minutes: 25
   instructions: >-
@@ -179,7 +179,7 @@
   done_criteria: Two verses that fit the tune.
 
 - title: Make a mini zine
-  domain: creative
+  domain: production
   difficulty: 5
   duration_minutes: 45
   instructions: >-
@@ -189,7 +189,7 @@
   requires: [hands, vision]
 
 - title: Twist-ending short story
-  domain: creative
+  domain: production
   difficulty: 5
   duration_minutes: 45
   instructions: >-
@@ -197,9 +197,9 @@
     everything before it. Read it back once and revise.
   done_criteria: A revised story with a twist.
 
-# --- practical ---------------------------------------------------------------
+# --- chores ------------------------------------------------------------------
 - title: Clear one surface
-  domain: practical
+  domain: chores
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -208,7 +208,7 @@
   done_criteria: The surface is clear.
 
 - title: Digital tidy
-  domain: practical
+  domain: chores
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -216,7 +216,7 @@
   done_criteria: Twenty items gone.
 
 - title: Plan tomorrow's meals
-  domain: practical
+  domain: chores
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -225,7 +225,7 @@
   done_criteria: Tomorrow's meals are decided.
 
 - title: Sort one drawer
-  domain: practical
+  domain: chores
   difficulty: 2
   duration_minutes: 15
   instructions: >-
@@ -234,7 +234,7 @@
   requires: [hands]
 
 - title: Cupboard cook-up
-  domain: practical
+  domain: chores
   difficulty: 3
   duration_minutes: 30
   instructions: >-
@@ -244,7 +244,7 @@
   requires: [standing, hands]
 
 - title: Mend one small thing
-  domain: practical
+  domain: chores
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -254,7 +254,7 @@
   requires: [hands]
 
 - title: Spending snapshot
-  domain: practical
+  domain: chores
   difficulty: 4
   duration_minutes: 30
   instructions: >-
@@ -263,7 +263,7 @@
   done_criteria: Your list of regular costs is complete.
 
 - title: Deep clean one zone
-  domain: practical
+  domain: chores
   difficulty: 4
   duration_minutes: 30
   instructions: >-
@@ -273,7 +273,7 @@
   requires: [standing]
 
 - title: Batch cook
-  domain: practical
+  domain: chores
   difficulty: 5
   duration_minutes: 60
   instructions: >-
@@ -283,7 +283,7 @@
   requires: [standing, hands]
 
 - title: Household info sheet
-  domain: practical
+  domain: chores
   difficulty: 5
   duration_minutes: 40
   instructions: >-
@@ -291,9 +291,9 @@
     and fuse box are, bin days, and who to call for repairs.
   done_criteria: The sheet is written and somewhere easy to find.
 
-# --- social ---------------------------------------------------------------
+# --- outreach -------------------------------------------------------------
 - title: Send a thank-you
-  domain: social
+  domain: outreach
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -302,7 +302,7 @@
   done_criteria: The message is sent.
 
 - title: A sincere compliment
-  domain: social
+  domain: outreach
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -310,7 +310,7 @@
   done_criteria: You gave the compliment.
 
 - title: Voice hello
-  domain: social
+  domain: outreach
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -320,7 +320,7 @@
   requires: [speaking, hearing]
 
 - title: Share a recommendation
-  domain: social
+  domain: outreach
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -329,7 +329,7 @@
   done_criteria: The recommendation is sent.
 
 - title: Ask for a story
-  domain: social
+  domain: outreach
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -338,7 +338,7 @@
   done_criteria: You heard the story and asked two follow-ups.
 
 - title: Write a real letter
-  domain: social
+  domain: outreach
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -347,7 +347,7 @@
   requires: [hands]
 
 - title: Plan a get-together
-  domain: social
+  domain: outreach
   difficulty: 4
   duration_minutes: 25
   instructions: >-
@@ -356,7 +356,7 @@
   done_criteria: A date is set.
 
 - title: Join a group conversation
-  domain: social
+  domain: outreach
   difficulty: 4
   duration_minutes: 30
   instructions: >-
@@ -365,7 +365,7 @@
   done_criteria: You contributed at least once.
 
 - title: Host a small gathering
-  domain: social
+  domain: outreach
   difficulty: 5
   duration_minutes: 60
   instructions: >-
@@ -374,7 +374,7 @@
   done_criteria: The gathering happened.
 
 - title: Reconnect
-  domain: social
+  domain: outreach
   difficulty: 5
   duration_minutes: 30
   instructions: >-
@@ -382,9 +382,9 @@
     suggest catching up properly.
   done_criteria: You reached out with a shared memory.
 
-# --- learning ---------------------------------------------------------------
+# --- training ---------------------------------------------------------------
 - title: Five new words
-  domain: learning
+  domain: training
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -392,7 +392,7 @@
   done_criteria: You can recall all five words.
 
 - title: One encyclopedia article
-  domain: learning
+  domain: training
   difficulty: 1
   duration_minutes: 10
   instructions: >-
@@ -401,7 +401,7 @@
   done_criteria: One surprising fact noted.
 
 - title: Short talk, three takeaways
-  domain: learning
+  domain: training
   difficulty: 2
   duration_minutes: 15
   instructions: >-
@@ -410,7 +410,7 @@
   done_criteria: Three takeaways written down.
 
 - title: Learn a card trick
-  domain: learning
+  domain: training
   difficulty: 2
   duration_minutes: 15
   instructions: >-
@@ -420,7 +420,7 @@
   requires: [hands]
 
 - title: Teach it back
-  domain: learning
+  domain: training
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -429,7 +429,7 @@
   done_criteria: Your explanation is written or recorded.
 
 - title: Puzzle set
-  domain: learning
+  domain: training
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -437,7 +437,7 @@
   done_criteria: Five puzzles attempted, at least three solved.
 
 - title: Free online lesson
-  domain: learning
+  domain: training
   difficulty: 4
   duration_minutes: 30
   instructions: >-
@@ -445,7 +445,7 @@
   done_criteria: The lesson is complete.
 
 - title: Memorise a short poem
-  domain: learning
+  domain: training
   difficulty: 4
   duration_minutes: 25
   instructions: >-
@@ -453,7 +453,7 @@
   done_criteria: One full recitation from memory.
 
 - title: Research and explain
-  domain: learning
+  domain: training
   difficulty: 5
   duration_minutes: 45
   instructions: >-
@@ -462,7 +462,7 @@
   done_criteria: A one-page explainer with sources.
 
 - title: Tiny project, new skill
-  domain: learning
+  domain: training
   difficulty: 5
   duration_minutes: 45
   instructions: >-
@@ -470,9 +470,9 @@
     a sentence in a new language, a short script, a simple knot, a sketch technique.
   done_criteria: You have a finished small thing.
 
-# --- caring ---------------------------------------------------------------
+# --- caretaking -----------------------------------------------------------
 - title: Tend something living
-  domain: caring
+  domain: caretaking
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -481,7 +481,7 @@
   done_criteria: Something living is looked after.
 
 - title: A mindful drink
-  domain: caring
+  domain: caretaking
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -489,7 +489,7 @@
   done_criteria: The drink was made and enjoyed.
 
 - title: Check in on someone
-  domain: caring
+  domain: caretaking
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -498,7 +498,7 @@
   done_criteria: You checked in.
 
 - title: Ten minutes for you
-  domain: caring
+  domain: caretaking
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -507,7 +507,7 @@
   done_criteria: Ten restful minutes taken.
 
 - title: Bake or cook to share
-  domain: caring
+  domain: caretaking
   difficulty: 3
   duration_minutes: 30
   instructions: >-
@@ -516,7 +516,7 @@
   requires: [standing, hands]
 
 - title: Tidy your street
-  domain: caring
+  domain: caretaking
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -526,7 +526,7 @@
   requires: [walking, going_out, hands]
 
 - title: Help with a put-off task
-  domain: caring
+  domain: caretaking
   difficulty: 4
   duration_minutes: 40
   instructions: >-
@@ -535,7 +535,7 @@
   done_criteria: The job is done or properly started.
 
 - title: Care package
-  domain: caring
+  domain: caretaking
   difficulty: 4
   duration_minutes: 30
   instructions: >-
@@ -544,7 +544,7 @@
   done_criteria: The package is ready to give.
 
 - title: Volunteer for an hour
-  domain: caring
+  domain: caretaking
   difficulty: 5
   duration_minutes: 60
   instructions: >-
@@ -553,7 +553,7 @@
   done_criteria: One hour volunteered.
 
 - title: Organise a kindness project
-  domain: caring
+  domain: caretaking
   difficulty: 5
   duration_minutes: 45
   instructions: >-
@@ -561,11 +561,11 @@
     care home or collecting donations, and set it in motion.
   done_criteria: At least two others have agreed to join.
 
-# --- problems ---------------------------------------------------------------
+# --- tickets ----------------------------------------------------------------
 # Coding, maths and science problems. Each problem is written into the
 # task so it works offline, and on paper when no computer is to hand.
 - title: Mental maths warm-up
-  domain: problems
+  domain: tickets
   difficulty: 1
   duration_minutes: 5
   instructions: >-
@@ -574,7 +574,7 @@
   done_criteria: All five answered and checked.
 
 - title: Why is the sky blue?
-  domain: problems
+  domain: tickets
   difficulty: 1
   duration_minutes: 10
   instructions: >-
@@ -583,7 +583,7 @@
   done_criteria: Your guess and the two notes are written down.
 
 - title: Trace the loop
-  domain: problems
+  domain: tickets
   difficulty: 2
   duration_minutes: 10
   instructions: >-
@@ -593,7 +593,7 @@
   done_criteria: You have a written prediction and know whether it was right.
 
 - title: Estimate it
-  domain: problems
+  domain: tickets
   difficulty: 2
   duration_minutes: 15
   instructions: >-
@@ -602,7 +602,7 @@
   done_criteria: An estimate with its assumptions, within a factor of ten.
 
 - title: FizzBuzz, your way
-  domain: problems
+  domain: tickets
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -612,7 +612,7 @@
   done_criteria: Both versions are written and give the right output for 1 to 30.
 
 - title: Kitchen science
-  domain: problems
+  domain: tickets
   difficulty: 3
   duration_minutes: 20
   instructions: >-
@@ -623,7 +623,7 @@
   requires: [hands]
 
 - title: Prove it
-  domain: problems
+  domain: tickets
   difficulty: 4
   duration_minutes: 25
   instructions: >-
@@ -633,7 +633,7 @@
   done_criteria: Both arguments written so someone else could follow them.
 
 - title: Palindrome checker
-  domain: problems
+  domain: tickets
   difficulty: 4
   duration_minutes: 30
   instructions: >-
@@ -643,7 +643,7 @@
   done_criteria: The function works on all six test phrases.
 
 - title: Small simulation
-  domain: problems
+  domain: tickets
   difficulty: 5
   duration_minutes: 45
   instructions: >-
@@ -654,7 +654,7 @@
   done_criteria: Your prediction, the counts or table, and a sentence comparing them.
 
 - title: Explain a physics puzzle
-  domain: problems
+  domain: tickets
   difficulty: 5
   duration_minutes: 40
   instructions: >-

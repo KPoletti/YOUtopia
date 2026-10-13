@@ -38,7 +38,7 @@ A handful of questions, well under five minutes. Don't worry, you've already got
 
 | Question | Example | Why |
 | --- | --- | --- |
-| Interests | `creative, learning` or `all` | Which of the seven areas to draw tasks from |
+| Interests | `production, training` or `all` | Which of the seven areas of work to draw tasks from |
 | Minutes per day | `20` | No task will ever be longer |
 | Accessibility limits | `no kneeling, low vision` or `none` | Tasks that need these are never offered |
 | Preferred challenge | `1` (gentle) to `5` (stretch) | Your starting level in every area |
@@ -56,6 +56,7 @@ Running `init` again updates your profile. Your progress is always kept. HR neve
 
 ```bash
 youtopia today            # see today's three tasks
+youtopia more 2           # want extra? there's no daily limit
 youtopia swap 2           # not feeling task 2? get another, no questions asked
 youtopia done 1           # finished task 1
 youtopia done 3 --note "harder than it looked"
@@ -64,6 +65,7 @@ youtopia stats            # levels, recent history, streaks and milestones
 
 `today` always shows the same set for the rest of the day, so check back as often as you like. Your assignments won't change behind your back.
 
-!!! tip "Skipping is fine (really)"
-    Didn't get to anything today? That's allowed. Tomorrow brings a fresh set,
-    and your streak forgives up to two days off in a row.
+!!! tip "Skipping costs nothing (your tasks may sigh)"
+    Didn't get to anything today? You keep all your progress, tomorrow brings a fresh set,
+    and your streak forgives up to two days off in a row. Your messages will mention it,
+    though: a little guilt is part of everyone's [tone](tone.md).

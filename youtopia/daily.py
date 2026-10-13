@@ -3,16 +3,25 @@
 import random
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from sqlmodel import Session, col, func, select
 
 from youtopia import difficulty, generator
 from youtopia.difficulty import LevelChange
-from youtopia.generator import History, TaskTemplate
-from youtopia.models import Completion, Domain, Profile, SkillLevel, Task, TaskStatus
+from youtopia.generator import AISource, History, TaskTemplate
+from youtopia.models import (
+    Completion,
+    Domain,
+    Profile,
+    SkillLevel,
+    Task,
+    TaskSource,
+    TaskStatus,
+)
 
-MAX_TASKS_PER_DAY = 3
+# Size of the set `today` opens with. `more_tasks` adds any number on top: no daily cap.
+DAILY_SET_SIZE = 3
 
 
 class DailyError(ValueError):
@@ -24,6 +33,13 @@ class SwapResult:
     declined: Task
     replacement: Task | None
     level_change: LevelChange | None = None
+    notice: str | None = None
+
+
+@dataclass
+class TodaySet:
+    tasks: list[Task]
+    notice: str | None = None  # e.g. why AI tasks were replaced by built-in ones
 
 
 @dataclass
@@ -49,30 +65,84 @@ def ensure_today(
     day: date,
     rng: random.Random | None = None,
     templates: Sequence[TaskTemplate] | None = None,
+    ai: AISource | None = None,
 ) -> list[Task]:
-    """Return today's tasks, generating a fresh set if none have been offered yet.
+    """Today's tasks, generating a fresh set if none have been offered yet."""
+    return offer_today(session, profile, day, rng, templates, ai).tasks
+
+
+def offer_today(
+    session: Session,
+    profile: Profile,
+    day: date,
+    rng: random.Random | None = None,
+    templates: Sequence[TaskTemplate] | None = None,
+    ai: AISource | None = None,
+) -> TodaySet:
+    """Like `ensure_today`, plus a notice when AI tasks fell back to templates.
 
     Unfinished tasks from past days are counted as misses first (see `evaluate_misses`).
     """
     evaluate_misses(session, profile, day)
     if existing := todays_tasks(session, day):
-        return existing
-    rng = rng or random.Random()
-    candidates = generator.eligible_templates(_templates(templates), profile)
-    history = _history(session, day)
-    levels = _levels(session)
-
-    tasks: list[Task] = []
-    for slot in range(1, MAX_TASKS_PER_DAY + 1):
-        avoid = {t.domain for t in tasks}
-        template = generator.pick_template(candidates, profile, levels, history, avoid, rng)
-        if template is None:
-            break
-        history.titles_today.add(template.title)
-        tasks.append(_task_from(template, day, slot))
+        return TodaySet(existing)
+    generated = generator.generate(
+        session,
+        profile,
+        day=day,
+        n=DAILY_SET_SIZE,
+        avoid_domains=set(),
+        candidates=generator.eligible_templates(_templates(templates), profile),
+        levels=_levels(session),
+        history=_history(session, day),
+        rng=rng or random.Random(),
+        ai=ai,
+    )
+    tasks = [
+        _task_from(template, day, slot, source)
+        for slot, (template, source) in enumerate(generated.picks, start=1)
+    ]
     session.add_all(tasks)
     session.flush()
-    return tasks
+    return TodaySet(tasks, generated.notice)
+
+
+def more_tasks(
+    session: Session,
+    profile: Profile,
+    day: date,
+    count: int = 1,
+    rng: random.Random | None = None,
+    templates: Sequence[TaskTemplate] | None = None,
+    ai: AISource | None = None,
+) -> TodaySet:
+    """Add `count` tasks to today's list, after the daily set. There is no daily cap; the
+    only limit is what fits (the library, plus AI when it's on and within its call cap)."""
+    if count < 1:
+        raise DailyError("Ask for at least one more task.")
+    rng = rng or random.Random()
+    offer_today(session, profile, day, rng, templates, ai)
+    active = todays_tasks(session, day)
+    last_slot = session.exec(select(func.max(Task.slot)).where(Task.offered_on == day)).one()
+    generated = generator.generate(
+        session,
+        profile,
+        day=day,
+        n=count,
+        avoid_domains={t.domain for t in active},
+        candidates=generator.eligible_templates(_templates(templates), profile),
+        levels=_levels(session),
+        history=_history(session, day),
+        rng=rng,
+        ai=ai,
+    )
+    tasks = [
+        _task_from(template, day, (last_slot or 0) + i, source)
+        for i, (template, source) in enumerate(generated.picks, start=1)
+    ]
+    session.add_all(tasks)
+    session.flush()
+    return TodaySet(tasks, generated.notice)
 
 
 def swap_task(
@@ -82,12 +152,14 @@ def swap_task(
     number: int,
     rng: random.Random | None = None,
     templates: Sequence[TaskTemplate] | None = None,
+    ai: AISource | None = None,
 ) -> SwapResult:
     """Decline task `number` and offer a replacement in the same slot, if one fits."""
     task = _get_task(session, day, number)
     if task.status == TaskStatus.DONE:
         raise DailyError(f"Task {number} is already done, so there's nothing to swap.")
     task.status = TaskStatus.DECLINED
+    task.declined_at = datetime.now(UTC)
     session.add(task)
     skill = _skill(session, task.domain, task.difficulty)
     level_change = difficulty.record_decline(skill)
@@ -95,15 +167,30 @@ def swap_task(
 
     others = [t for t in todays_tasks(session, day) if t.id != task.id]
     avoid = {t.domain for t in others} | {task.domain}
-    candidates = generator.eligible_templates(_templates(templates), profile)
-    template = generator.pick_template(
-        candidates, profile, _levels(session), _history(session, day), avoid, rng or random.Random()
+    generated = generator.generate(
+        session,
+        profile,
+        day=day,
+        n=1,
+        avoid_domains=avoid,
+        candidates=generator.eligible_templates(_templates(templates), profile),
+        levels=_levels(session),
+        history=_history(session, day),
+        rng=rng or random.Random(),
+        ai=ai,
     )
-    replacement = _task_from(template, day, task.slot) if template else None
-    if replacement:
+    replacement = None
+    if generated.picks:
+        template, source = generated.picks[0]
+        replacement = _task_from(template, day, task.slot, source)
         session.add(replacement)
     session.flush()
-    return SwapResult(declined=task, replacement=replacement, level_change=level_change)
+    return SwapResult(
+        declined=task,
+        replacement=replacement,
+        level_change=level_change,
+        notice=generated.notice,
+    )
 
 
 def complete_task(
@@ -172,7 +259,9 @@ def _get_task(session: Session, day: date, number: int) -> Task:
     raise DailyError(f"There's no task {number} today. Pick one of: {numbers}.")
 
 
-def _task_from(template: TaskTemplate, day: date, slot: int) -> Task:
+def _task_from(
+    template: TaskTemplate, day: date, slot: int, source: TaskSource = TaskSource.TEMPLATE
+) -> Task:
     return Task(
         title=template.title,
         instructions=template.instructions,
@@ -182,6 +271,7 @@ def _task_from(template: TaskTemplate, day: date, slot: int) -> Task:
         done_criteria=template.done_criteria,
         offered_on=day,
         slot=slot,
+        source=source,
     )
 
 

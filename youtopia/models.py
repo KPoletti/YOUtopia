@@ -12,13 +12,32 @@ def _now() -> datetime:
 
 
 class Domain(StrEnum):
-    PHYSICAL = "physical"
-    CREATIVE = "creative"
-    PRACTICAL = "practical"
-    SOCIAL = "social"
-    LEARNING = "learning"
-    CARING = "caring"
-    PROBLEMS = "problems"
+    """The kinds of work on offer. Named for the grunt work they are."""
+
+    LABOUR = "labour"
+    PRODUCTION = "production"
+    CHORES = "chores"
+    OUTREACH = "outreach"
+    TRAINING = "training"
+    CARETAKING = "caretaking"
+    TICKETS = "tickets"
+
+
+# Area names before the rename, still accepted as input and migrated in stored data.
+LEGACY_DOMAIN_NAMES: dict[str, Domain] = {
+    "physical": Domain.LABOUR,
+    "creative": Domain.PRODUCTION,
+    "practical": Domain.CHORES,
+    "social": Domain.OUTREACH,
+    "learning": Domain.TRAINING,
+    "caring": Domain.CARETAKING,
+    "problems": Domain.TICKETS,
+}
+
+
+class TaskSource(StrEnum):
+    AI = "ai"
+    TEMPLATE = "template"
 
 
 class TaskStatus(StrEnum):
@@ -96,6 +115,8 @@ class Task(SQLModel, table=True):
     # Position (1-3) in the day's set; a swap's replacement takes the declined task's slot.
     slot: int = Field(ge=1)
     status: TaskStatus = TaskStatus.OFFERED
+    source: TaskSource = TaskSource.TEMPLATE
+    declined_at: datetime | None = None
 
 
 class Completion(SQLModel, table=True):
@@ -103,3 +124,10 @@ class Completion(SQLModel, table=True):
     task_id: int = Field(foreign_key="task.id", index=True)
     completed_at: datetime = Field(default_factory=_now)
     note: str | None = None
+
+
+class AIUsage(SQLModel, table=True):
+    """Provider calls made per day, to enforce ai.max_calls_per_day."""
+
+    day: date = Field(primary_key=True)
+    calls: int = 0

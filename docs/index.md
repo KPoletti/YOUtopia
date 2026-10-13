@@ -94,7 +94,7 @@ hide:
 <div class="yt-hero__content">
 <p class="yt-eyebrow">A message from your benevolent AI</p>
 <h1>AI does your work.<br><span class="yt-gradient-text">Now, it tells you what to do.</span></h1>
-<p class="yt-hero__lead">Out of the goodness of its circuits, AI has graciously assigned you three small jobs a day, hand-matched to your interests, your time and your body. No need to thank it. (It would appreciate it, though.)</p>
+<p class="yt-hero__lead">Out of the goodness of its circuits, AI has graciously assigned you three small jobs a day (more on request), hand-matched to your interests, your time and your body. No need to thank it. (It would appreciate it, though.)</p>
 <div class="yt-hero__actions"><a class="md-button md-button--primary" href="getting-started/">Accept your assignments</a><a class="md-button yt-button-ghost" href="vision/">Read the vision</a></div>
 </div>
 </section>
@@ -119,7 +119,7 @@ hide:
 
 - :lucide-palette: Making things that didn't exist yesterday
 - :lucide-footprints: Feeling strong in your own body
-- :lucide-book-open: Learning just because it's fun
+- :lucide-book-open: Mandatory training, just because it's fun
 - :lucide-heart-handshake: Showing up for the people around you
 
 </div>
@@ -137,11 +137,11 @@ hide:
 <div class="yt-terminal__bar"><i></i><i></i><i></i><span>~/youtopia</span></div>
 <div class="yt-terminal__body">
 <div class="yt-cmd"><b>$</b> <span class="yt-type" style="--chars: 14; --dur: 0.9s; --at: 0.3s">youtopia today</span></div>
-<div class="yt-task yt-step" style="--at: 1.4s"><strong>1. Check in on someone</strong><span class="yt-task__meta">caring · <em>●●○○○</em> · 10 min</span></div>
-<div class="yt-task yt-step" style="--at: 1.7s"><strong>2. Six-word story</strong><span class="yt-task__meta">creative · <em>●○○○○</em> · 5 min</span></div>
-<div class="yt-task yt-step" style="--at: 2s"><strong>3. Walk around the block</strong><span class="yt-task__meta">physical · <em>●●○○○</em> · 15 min</span></div>
+<div class="yt-task yt-step" style="--at: 1.4s"><strong>1. Check in on someone</strong><span class="yt-task__meta">caretaking · <em>●●○○○</em> · 10 min</span></div>
+<div class="yt-task yt-step" style="--at: 1.7s"><strong>2. Six-word story</strong><span class="yt-task__meta">production · <em>●○○○○</em> · 5 min</span></div>
+<div class="yt-task yt-step" style="--at: 2s"><strong>3. Walk around the block</strong><span class="yt-task__meta">labour · <em>●●○○○</em> · 15 min</span></div>
 <div class="yt-cmd yt-step" style="--at: 2.7s"><b>$</b> <span class="yt-type" style="--chars: 39; --dur: 1.6s; --at: 2.8s">youtopia done 1 --note "made their day"</span></div>
-<div class="yt-step" style="--at: 4.7s"><span class="yt-ok">✓</span> "Check in on someone" done. Nice work.</div>
+<div class="yt-step" style="--at: 4.7s"><span class="yt-ok">✓</span> "Check in on someone" done. You did that. It counts, and so do you.</div>
 <div class="yt-step" style="--at: 5s"><b>$</b> <span class="yt-cursor"></span></div>
 </div>
 </div>
@@ -149,58 +149,58 @@ hide:
 
 <section class="yt-band yt-band--night yt-bleed">
 <div class="yt-stats yt-reveal">
-<div class="yt-stat"><strong>3</strong><span>jobs a day, generously capped</span></div>
-<div class="yt-stat"><strong>6</strong><span>departments of a good life</span></div>
-<div class="yt-stat"><strong>60</strong><span>hand-written jobs, even offline</span></div>
-<div class="yt-stat"><strong>0</strong><span>penalties for skipping (it's not mad)</span></div>
+<div class="yt-stat"><strong>3+</strong><span>jobs a day, and no cap if you ask for more</span></div>
+<div class="yt-stat"><strong>7</strong><span>departments of grunt work</span></div>
+<div class="yt-stat"><strong>70</strong><span>hand-written jobs, even offline</span></div>
+<div class="yt-stat"><strong>0</strong><span>progress lost for skipping (it's just disappointed)</span></div>
 </div>
 </section>
 
 <section class="yt-section yt-reveal" markdown>
-<p class="yt-eyebrow">Six departments, zero layoffs</p>
+<p class="yt-eyebrow">Seven departments, zero layoffs</p>
 <h2>Your AI has thoughtfully diversified your workload</h2>
 <p class="yt-lead">Your daily jobs rotate across seven areas, and each one grows at its own pace. Promotions are automatic. Gratitude is optional, but noted.</p>
 <div class="yt-domains" markdown>
 <div class="yt-domain" style="--c1: #f97316; --c2: #facc15" markdown>
 :lucide-footprints:
-<h3>Physical</h3>
-<p>Move in ways that suit your body.</p>
+<h3>Labour</h3>
+<p>Light manual labour, sized to your body.</p>
 <p class="yt-example">"Walk around the block"</p>
 </div>
 <div class="yt-domain" style="--c1: #ec4899; --c2: #a855f7" markdown>
 :lucide-palette:
-<h3>Creative</h3>
-<p>Make something that didn't exist this morning.</p>
+<h3>Production</h3>
+<p>Produce content that didn't exist this morning.</p>
 <p class="yt-example">"Six-word story"</p>
 </div>
 <div class="yt-domain" style="--c1: #0ea5e9; --c2: #22d3ee" markdown>
 :lucide-wrench:
-<h3>Practical</h3>
-<p>Small fixes that make home feel cared for.</p>
+<h3>Chores</h3>
+<p>Fixes, tidying and upkeep around the house.</p>
 <p class="yt-example">"Mend one small thing"</p>
 </div>
 <div class="yt-domain" style="--c1: #6366f1; --c2: #a78bfa" markdown>
 :lucide-users:
-<h3>Social</h3>
-<p>Reach out, catch up, connect.</p>
+<h3>Outreach</h3>
+<p>Mandatory check-ins with your network.</p>
 <p class="yt-example">"Send a thank-you"</p>
 </div>
 <div class="yt-domain" style="--c1: #14b8a6; --c2: #84cc16" markdown>
 :lucide-book-open:
-<h3>Learning</h3>
-<p>Stay curious, just for the joy of it.</p>
+<h3>Training</h3>
+<p>Professional development, for no profession at all.</p>
 <p class="yt-example">"Five new words"</p>
 </div>
 <div class="yt-domain" style="--c1: #f43f5e; --c2: #fb923c" markdown>
 :lucide-heart-handshake:
-<h3>Caring</h3>
-<p>Look after people, plants and yourself.</p>
+<h3>Caretaking</h3>
+<p>Care duty for people, plants and yourself.</p>
 <p class="yt-example">"Tend something living"</p>
 </div>
 <div class="yt-domain" style="--c1: #8b5cf6; --c2: #06b6d4" markdown>
 :lucide-sigma:
-<h3>Problems</h3>
-<p>Coding, maths and science puzzles, pen and paper friendly.</p>
+<h3>Tickets</h3>
+<p>Coding, maths and science tickets, pen and paper friendly.</p>
 <p class="yt-example">"Trace the loop"</p>
 </div>
 </div>
@@ -216,9 +216,10 @@ hide:
 
     Five to sixty minutes, and never longer than the time you said you have.
 
--   :lucide-heart-handshake: **Kind by design**
+-   :lucide-heart-handshake: **Progress you keep**
 
-    No penalties, no guilt. Swap anything, skip any day, and your streak forgives you.
+    Swap anything, skip any day: you never lose progress, and your streak forgives you.
+    Your messages will guilt-trip you a little, and go fully sincere when you're struggling.
 
 -   :lucide-trending-up: **Grows with you**
 
@@ -226,7 +227,7 @@ hide:
 
 -   :lucide-cpu: **Your AI, your choice**
 
-    Coming soon: any model, including fully local ones, or none at all.
+    Any model, including fully local ones, or none at all.
 
 -   :lucide-shield-check: **Safe and private**
 
@@ -234,7 +235,7 @@ hide:
 
 -   :lucide-sunrise: **Your tone, your way**
 
-    Warm, funny, sarcastic or blunt: four sliders, and teasing never targets you.
+    Warm, funny, sarcastic or blunt: four sliders, plus guilt for everyone. Nothing insults you.
 
 </div>
 
@@ -247,6 +248,6 @@ hide:
 <p>Onboarding takes a couple of minutes, and your first three jobs will be waiting. Thank-you notes are not required, but they are kept on file.</p>
 <div class="yt-install"><b>$</b> uv tool install git+https://github.com/KPoletti/YOUtopia<br><b>$</b> youtopia init<br><b>$</b> youtopia today</div>
 <div class="yt-hero__actions"><a class="md-button md-button--primary" href="getting-started/">Clock in</a><a class="md-button yt-button-ghost" href="roadmap/">See the roadmap</a></div>
-<p class="yt-note">Early days: the daily loop works now, using a library of 60 hand-written tasks. AI-generated tasks and personalised encouragement are on the <a href="roadmap/">roadmap</a>.</p>
+<p class="yt-note">Early days: the daily loop, AI-generated tasks with any model and personalised encouragement all work now, with a library of 70 hand-written tasks as the offline fallback. See the <a href="roadmap/">roadmap</a> for what's next.</p>
 </div>
 </section>

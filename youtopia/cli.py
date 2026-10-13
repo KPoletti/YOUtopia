@@ -1,5 +1,6 @@
 """Typer app: parses input and renders output. Business logic lives in other modules."""
 
+import time
 from collections.abc import Callable
 from datetime import date
 from typing import Annotated
@@ -10,7 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 from sqlmodel import Session
 
-from youtopia import daily, stats, support
+from youtopia import config, daily, encouragement, generator, secrets, stats, support
 from youtopia import profile as profiles
 from youtopia.db import session_scope
 from youtopia.difficulty import LevelChange
@@ -26,6 +27,9 @@ from youtopia.models import (
     TaskStatus,
     ToneMix,
 )
+from youtopia.providers.base import ProviderError
+from youtopia.providers.catalog import PROVIDERS, provider_names
+from youtopia.terminal import safe
 
 TONE_PROMPTS = {
     "sincerity": "Sincerity (warm, genuine praise)",
@@ -37,7 +41,15 @@ TONE_PROMPTS = {
 EDITABLE_FIELDS = ("interests", "minutes", "accessibility", "challenge", "tone")
 
 app = typer.Typer(help="Small, achievable daily tasks matched to you.", no_args_is_help=True)
+config_app = typer.Typer(help="View and change settings in config.toml.", no_args_is_help=True)
+auth_app = typer.Typer(help="Manage API keys in your OS keyring.", no_args_is_help=True)
+ai_app = typer.Typer(help="Check your AI provider.", no_args_is_help=True)
+app.add_typer(config_app, name="config")
+app.add_typer(auth_app, name="auth")
+app.add_typer(ai_app, name="ai")
 console = Console()
+
+OFFLINE_HELP = "Use built-in tasks only; skip AI."
 
 
 @app.callback()
@@ -52,14 +64,14 @@ def _ask[T](question: str, parse: Callable[[str], T], default: str) -> T:
         try:
             return parse(raw)
         except profiles.ProfileError as err:
-            console.print(f"[yellow]{err}[/yellow]")
+            console.print(f"[yellow]{safe(err)}[/yellow]")
 
 
 def _from_flag[T](raw: str, parse: Callable[[str], T]) -> T:
     try:
         return parse(raw)
     except profiles.ProfileError as err:
-        console.print(f"[red]{err}[/red]")
+        console.print(f"[red]{safe(err)}[/red]")
         raise typer.Exit(code=2) from None
 
 
@@ -78,9 +90,9 @@ def _parse_int_in(low: int, high: int, label: str) -> Callable[[str], int]:
 
 def _render_profile(profile: Profile) -> None:
     table = Table(show_header=False, box=None, padding=(0, 2))
-    table.add_row("Interests", ", ".join(profile.interests))
+    table.add_row("Interests", safe(", ".join(profile.interests)))
     table.add_row("Minutes per day", str(profile.minutes_per_day))
-    table.add_row("Accessibility limits", ", ".join(profile.accessibility_limits) or "none")
+    table.add_row("Accessibility limits", safe(", ".join(profile.accessibility_limits) or "none"))
     table.add_row("Preferred challenge", f"{profile.preferred_challenge} / {MAX_LEVEL}")
     for trait, value in profile.tone.as_dict().items():
         bar = "■" * value + "□" * (TONE_MAX - value)
@@ -251,11 +263,25 @@ def _render_level_change(change: LevelChange) -> None:
     console.print(f"[{style}]{change.message()}[/{style}]")
 
 
+def _notice(text: str | None) -> None:
+    if text:
+        console.print(f"[dim]{safe(text)}[/dim]")
+
+
+def _load_ai(offline: bool) -> generator.AISource | None:
+    """The AI source, or None. A broken config file falls back to templates with a notice."""
+    try:
+        return generator.load_ai(offline)
+    except config.ConfigError as err:
+        _notice(f"Ignoring AI settings: {err}")
+        return None
+
+
 def _render_task(task: Task) -> None:
     done = task.status == TaskStatus.DONE
     meta = f"{task.domain} · {_level_dots(task.difficulty)} · {task.duration_minutes} min"
-    body = f"{task.instructions}\n\n[dim]Done when:[/dim] {task.done_criteria}"
-    title = f"{task.slot}. {task.title}" + (" [green]✓ done[/green]" if done else "")
+    body = f"{safe(task.instructions)}\n\n[dim]Done when:[/dim] {safe(task.done_criteria)}"
+    title = f"{task.slot}. {safe(task.title)}" + (" [green]✓ done[/green]" if done else "")
     console.print(
         Panel(
             body,
@@ -269,14 +295,18 @@ def _render_task(task: Task) -> None:
 
 
 @app.command()
-def today() -> None:
+def today(offline: Annotated[bool, typer.Option(help=OFFLINE_HELP)] = False) -> None:
     """Show today's tasks, picking a fresh set if needed."""
     with session_scope() as session:
         profile = _require_profile(session)
+        ai = _load_ai(offline)
         changes = daily.evaluate_misses(session, profile, _today())
-        tasks = daily.ensure_today(session, profile, _today())
+        console.print(safe(encouragement.greeting(session, profile, _today())))
+        offered = daily.offer_today(session, profile, _today(), ai=ai)
+        tasks = offered.tasks
         for change in changes:
             _render_level_change(change)
+        _notice(offered.notice)
         if not tasks:
             console.print(
                 "Nothing in the library fits your time and accessibility limits right now. "
@@ -287,29 +317,56 @@ def today() -> None:
             _render_task(task)
     console.print(
         "[dim]Finished one? [bold]youtopia done <n>[/bold]. "
-        "Not feeling it? [bold]youtopia swap <n>[/bold].[/dim]"
+        "Not feeling it? [bold]youtopia swap <n>[/bold]. "
+        "Want extra? [bold]youtopia more \\[N][/bold].[/dim]"
     )
 
 
 @app.command()
-def swap(number: Annotated[int, typer.Argument(help="Task number from `youtopia today`.")]) -> None:
+def more(
+    count: Annotated[int, typer.Argument(min=1, help="How many tasks to add.")] = 1,
+    offline: Annotated[bool, typer.Option(help=OFFLINE_HELP)] = False,
+) -> None:
+    """Add more tasks to today's list. There's no daily limit."""
+    with session_scope() as session:
+        profile = _require_profile(session)
+        result = daily.more_tasks(session, profile, _today(), count, ai=_load_ai(offline))
+        _notice(result.notice)
+        if not result.tasks:
+            console.print("That's everything in the library that fits today.")
+            return
+        for task in result.tasks:
+            _render_task(task)
+        if len(result.tasks) < count:
+            console.print(
+                f"[dim]Only {len(result.tasks)} more fit today; that's the whole library.[/dim]"
+            )
+
+
+@app.command()
+def swap(
+    number: Annotated[int, typer.Argument(help="Task number from `youtopia today`.")],
+    offline: Annotated[bool, typer.Option(help=OFFLINE_HELP)] = False,
+) -> None:
     """Swap a task for a different one. No questions asked."""
     with session_scope() as session:
         profile = _require_profile(session)
         try:
-            result = daily.swap_task(session, profile, _today(), number)
+            result = daily.swap_task(session, profile, _today(), number, ai=_load_ai(offline))
         except daily.DailyError as err:
-            console.print(f"[yellow]{err}[/yellow]")
+            console.print(f"[yellow]{safe(err)}[/yellow]")
             raise typer.Exit(code=1) from None
         if result.level_change:
             _render_level_change(result.level_change)
+        _notice(result.notice)
+        declined = safe(result.declined.title)
         if result.replacement is None:
             console.print(
-                f'Swapped out "{result.declined.title}". '
+                f'Swapped out "{declined}". '
                 "That's every option that fits today, so enjoy the space."
             )
             return
-        console.print(f'Swapped out "{result.declined.title}". Here\'s another option:')
+        console.print(f'Swapped out "{declined}". Here\'s another option:')
         _render_task(result.replacement)
 
 
@@ -317,16 +374,20 @@ def swap(number: Annotated[int, typer.Argument(help="Task number from `youtopia 
 def done(
     number: Annotated[int, typer.Argument(help="Task number from `youtopia today`.")],
     note: Annotated[str | None, typer.Option(help="A note about how it went.")] = None,
+    offline: Annotated[bool, typer.Option(help="Don't use AI to word the message.")] = False,
 ) -> None:
     """Mark a task as done."""
     with session_scope() as session:
-        _require_profile(session)
+        profile = _require_profile(session)
         try:
             result = daily.complete_task(session, _today(), number, note)
         except daily.DailyError as err:
-            console.print(f"[yellow]{err}[/yellow]")
+            console.print(f"[yellow]{safe(err)}[/yellow]")
             raise typer.Exit(code=1) from None
-        console.print(f'[green]✓[/green] "{result.task.title}" done. Nice work.')
+        message = encouragement.done_message(
+            session, profile, result.task, _today(), ai=_load_ai(offline)
+        )
+        console.print(f'[green]✓[/green] "{safe(result.task.title)}" done. {safe(message)}')
         if result.level_change:
             _render_level_change(result.level_change)
 
@@ -361,7 +422,7 @@ def show_stats() -> None:
         history.add_column("Domain")
         history.add_column("Note")
         for h in result.history:
-            history.add_row(h.day.isoformat(), h.title, h.domain, h.note or "")
+            history.add_row(h.day.isoformat(), safe(h.title), h.domain, safe(h.note or ""))
         console.print(history)
 
     if result.milestones:
@@ -380,11 +441,13 @@ def show_profile(
 ) -> None:
     """View your profile, or change it with --edit. Your progress is always kept."""
     if field is not None and not edit:
+        field = safe(field)
         console.print(f"To change {field}, run [bold]youtopia profile --edit {field}[/bold].")
         raise typer.Exit(code=2)
     if field is not None and field.lower() not in EDITABLE_FIELDS:
         console.print(
-            f"[red]Unknown field {field!r}.[/red] Choose from: {', '.join(EDITABLE_FIELDS)}."
+            f"[red]Unknown field {safe(repr(field))}.[/red] "
+            f"Choose from: {', '.join(EDITABLE_FIELDS)}."
         )
         raise typer.Exit(code=2)
 
@@ -430,3 +493,124 @@ def help_now() -> None:
     console.print(helplines)
     console.print()
     console.print(support.CLOSING)
+
+
+# --- config, auth and ai ---------------------------------------------------------
+
+
+@config_app.command("show")
+def config_show() -> None:
+    """Show the current settings. API keys are never stored here."""
+    try:
+        settings = config.load_config().ai
+    except config.ConfigError as err:
+        console.print(f"[red]{safe(err)}[/red]")
+        raise typer.Exit(code=1) from None
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    for key, value in vars(settings).items():
+        table.add_row(f"ai.{key}", safe(value if value != "" else "(default)"))
+    console.print(Panel(table, title=safe(str(config.config_path())), expand=False))
+
+
+@config_app.command("set")
+def config_set(
+    key: Annotated[str, typer.Argument(help=f"One of: {', '.join(config.keys())}.")],
+    value: Annotated[str, typer.Argument(help="The new value.")],
+) -> None:
+    """Change one setting, e.g. `youtopia config set ai.enabled true`."""
+    try:
+        config.set_value(key, value)
+    except config.ConfigError as err:
+        console.print(f"[red]{safe(err)}[/red]")
+        raise typer.Exit(code=2) from None
+    console.print(f"[green]Saved[/green] {safe(key)}.")
+
+
+def _check_provider(provider: str) -> str:
+    provider = provider.lower()
+    if provider not in PROVIDERS:
+        console.print(
+            f"[red]Unknown provider {safe(repr(provider))}.[/red] "
+            f"Choose from: {', '.join(provider_names())}."
+        )
+        raise typer.Exit(code=2)
+    return provider
+
+
+def _no_keyring(provider: str) -> None:
+    variables = " or ".join(secrets.env_vars_for(provider))
+    console.print(
+        "[yellow]No OS keyring is available here[/yellow] (common on headless Linux and WSL). "
+        f"Set the key in an environment variable instead: {variables}."
+    )
+    raise typer.Exit(code=1)
+
+
+@auth_app.command("set")
+def auth_set(provider: Annotated[str, typer.Argument(help="Provider name.")]) -> None:
+    """Store an API key in your OS keyring. Input is hidden."""
+    provider = _check_provider(provider)
+    key = typer.prompt(f"API key for {provider}", hide_input=True).strip()
+    if not key:
+        console.print("[yellow]No key entered; nothing saved.[/yellow]")
+        raise typer.Exit(code=1)
+    try:
+        secrets.set_key(provider, key)
+    except secrets.KeyringUnavailable:
+        _no_keyring(provider)
+    console.print(f"[green]Saved[/green] {secrets.mask(key)} for {provider} in your keyring.")
+
+
+@auth_app.command("status")
+def auth_status() -> None:
+    """Show where each provider's key comes from (last four characters at most)."""
+    table = Table("Provider", "Key", "Source", title="API keys", title_justify="left")
+    for name, spec in PROVIDERS.items():
+        found = secrets.find_key(name)
+        if found:
+            table.add_row(name, found.masked, safe(found.source))
+        elif spec.needs_key:
+            table.add_row(name, "[dim]none[/dim]", "")
+    console.print(table)
+
+
+@auth_app.command("remove")
+def auth_remove(provider: Annotated[str, typer.Argument(help="Provider name.")]) -> None:
+    """Delete a provider's key from your OS keyring."""
+    provider = _check_provider(provider)
+    try:
+        removed = secrets.remove_key(provider)
+    except secrets.KeyringUnavailable:
+        _no_keyring(provider)
+    if removed:
+        console.print(f"Removed the {provider} key from your keyring.")
+    else:
+        console.print(f"No {provider} key in your keyring.")
+    if secrets.key_in_env(provider):
+        console.print("[dim]A key is still set in your environment.[/dim]")
+
+
+@ai_app.command("test")
+def ai_test() -> None:
+    """Send one tiny prompt to your configured provider and time the reply."""
+    from youtopia.providers.registry import build_provider
+
+    try:
+        settings = config.load_config().ai
+        provider = build_provider(settings)
+        started = time.monotonic()
+        reply = provider.complete(
+            "You are a connectivity check.", "Reply with the single word: ready", max_tokens=1000
+        )
+    except (config.ConfigError, ProviderError) as err:
+        console.print(f"[red]AI test failed:[/red] {safe(err)}")
+        raise typer.Exit(code=1) from None
+    elapsed_ms = (time.monotonic() - started) * 1000
+    console.print(
+        f"[green]OK[/green] {safe(provider.name)} · {safe(provider.model)} · "
+        f"{elapsed_ms:.0f} ms · replied {safe(repr(reply[:60]))}"
+    )
+    if not settings.enabled:
+        console.print(
+            "[dim]AI is off for tasks. Turn it on: youtopia config set ai.enabled true[/dim]"
+        )

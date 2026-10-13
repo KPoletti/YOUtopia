@@ -9,7 +9,7 @@ runner = CliRunner()
 
 FLAGS = [
     "init",
-    "--interests", "creative,social",
+    "--interests", "production,outreach",
     "--minutes", "15",
     "--accessibility", "none",
     "--challenge", "2",
@@ -29,7 +29,7 @@ def test_init_with_flags():
     assert result.exit_code == 0, result.output
 
     profile = stored_profile()
-    assert profile.interests == ["creative", "social"]
+    assert profile.interests == ["production", "outreach"]
     assert profile.minutes_per_day == 15
     assert profile.accessibility_limits == []
     # Unspecified sliders keep their defaults.
@@ -40,7 +40,7 @@ def test_init_with_flags():
 
 def test_init_interactive_reprompts_on_bad_input():
     answers = [
-        "creative, juggling",  # unknown interest -> asked again
+        "production, juggling",  # unknown interest -> asked again
         "all",
         "abc",  # not a number -> asked again
         "30",

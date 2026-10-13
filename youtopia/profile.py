@@ -7,6 +7,7 @@ from sqlmodel import Session, select
 
 from youtopia.models import (
     DEFAULT_TONE,
+    LEGACY_DOMAIN_NAMES,
     MAX_LEVEL,
     MIN_LEVEL,
     TONE_MAX,
@@ -48,13 +49,14 @@ def parse_interests(raw: str) -> list[Domain]:
     if not names:
         raise ProfileError("Pick at least one interest.")
     valid = {d.value for d in Domain}
-    unknown = [name for name in names if name not in valid]
+    unknown = [n for n in names if n not in valid and n not in LEGACY_DOMAIN_NAMES]
     if unknown:
         raise ProfileError(
             f"Unknown interest(s): {', '.join(unknown)}. "
             f"Choose from: {', '.join(valid_domain_names())}, or 'all'."
         )
-    return [Domain(name) for name in names]
+    domains = [Domain(n) if n in valid else LEGACY_DOMAIN_NAMES[n] for n in names]
+    return list(dict.fromkeys(domains))
 
 
 def parse_accessibility(raw: str) -> list[str]:

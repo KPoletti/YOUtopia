@@ -21,17 +21,20 @@ youtopia/
   models.py         # SQLModel tables
   db.py             # engine/session, ~/.youtopia setup
   profile.py        # profile parsing, validation, saving
-  daily.py          # daily loop: today, swap, done
+  daily.py          # daily loop: today, more, swap, done
   stats.py          # levels, history, streaks, milestones
   generator.py      # task generation: AI first, templates fallback
   templates.yaml    # built-in task library
   difficulty.py     # adaptive difficulty rules
   support.py        # static help-now resources
-  config.py         # ~/.youtopia/config.toml                 (planned, M5)
-  secrets.py        # API key lookup: env vars, then keyring  (planned, M5)
-  providers/        # Provider protocol + adapters            (planned, M5)
-  safety.py         # safety filter for generated text        (planned, M6)
-  encouragement.py  # messages from the tone sliders          (planned, M7)
+  config.py         # ~/.youtopia/config.toml
+  secrets.py        # API key lookup: env vars, then keyring
+  providers/        # Provider protocol + adapters (anthropic, openai_compat, fake), registry
+  safety.py         # safety filter for generated text
+  terminal.py       # strip escape sequences, escape Rich markup
+  usage.py          # daily AI-call cap
+  encouragement.py  # messages from the tone sliders plus guilt
+  phrases.yaml      # encouragement phrase bank
 tests/
 docs/               # Zensical docs site; roadmap.md has milestone detail
 zensical.toml
@@ -42,31 +45,36 @@ zensical.toml
 | Command | Behaviour |
 | --- | --- |
 | `youtopia init` | Onboarding: interests, minutes per day, accessibility limits, preferred challenge (1–5), tone sliders (default mix, or customise each). Under 5 minutes. |
-| `youtopia today` | Show today's 3 tasks; generate if none exist for today. |
+| `youtopia today [--offline]` | Show today's tasks (a set of 3 to start); generate if none exist for today. |
+| `youtopia more [N]` | Add N more tasks to today's list. No daily cap. |
 | `youtopia swap <n>` | Decline task n, record the decline, offer a replacement. |
 | `youtopia done <n> [--note TEXT]` | Mark complete, update skill level, print encouragement. |
 | `youtopia stats` | Skill level per domain, history, milestones. |
 | `youtopia profile` | View/edit profile, including tone sliders. |
 | `youtopia help-now` | Print support and crisis resources. |
+| `youtopia config show\|set` | View or change `config.toml` settings. |
+| `youtopia auth set\|status\|remove` | Manage API keys in the OS keyring. |
+| `youtopia ai test` | Check the configured provider answers. |
 
 ## Domain model
 
 - **Profile**: interests, minutes_per_day, accessibility_limits, preferred_challenge, tone sliders `sincerity`, `humor`, `sarcasm`, `rudeness`, each 0–5 (default 4 / 1 / 0 / 0)
-- **SkillLevel**: domain, level 1–5, recent_successes
-- **Task**: title, instructions, domain, difficulty 1–5, duration_minutes, done_criteria, offered_on, status (`offered` | `done` | `declined`)
+- **SkillLevel**: domain, level 1–5, recent_successes, recent_declines, recent_misses, last_evaluated
+- **Task**: title, instructions, domain, difficulty 1–5, duration_minutes, done_criteria, offered_on, slot, status (`offered` | `done` | `declined`), source (`ai` | `template`), declined_at
 - **Completion**: task_id, completed_at, note
 
-Domains: physical, creative, practical, social, learning, caring, problems (coding, maths and science).
+Domains, named for the grunt work they are: labour, production, chores, outreach, training, caretaking, tickets (coding, maths and science problems). Old names (physical, creative, practical, social, learning, caring, problems) are accepted as input and migrated in stored data.
 
 ## Rules that must hold
 
 - Tasks fit the user's time and accessibility limits; never physically, legally or financially risky.
 - Rotate domains across the daily set.
 - Difficulty rises after consistent success and drops after repeated declines or misses. Thresholds live in `difficulty.py` as named constants.
-- No penalties: missed days and declines never remove progress or trigger guilt messaging. Streaks forgive missed days.
-- Encouragement blends the four tone sliders by weight. Sarcasm and rudeness tease the task, never the person. After several missed days or declines in a row it falls back automatically to sincere-only (sincerity 5, the rest 0).
+- No penalties: missed days and declines never remove progress. Streaks forgive missed days.
+- Guilt is part of every user's encouragement: a fixed `GUILT_WEIGHT` in `encouragement.py`, not a slider. Guilt nags about the tasks waiting and never insults the person.
+- Encouragement blends the four tone sliders by weight, plus guilt. Sarcasm and rudeness tease the task, never the person. After several missed days or declines in a row it falls back automatically to sincere-only (sincerity 5, the rest 0, no guilt).
 - Generation must work offline: on API error, no key or invalid output, use templates (per task).
-- Max 3 offered tasks per day.
+- `today` opens with a set of 3; `more` adds any number on top, with no daily cap. AI calls stay capped by `ai.max_calls_per_day`.
 
 ### Security
 
@@ -85,9 +93,9 @@ Full steps, acceptance criteria and security checks: [docs/roadmap.md](docs/road
 2. ✓ Daily loop with templates only: `today`, `swap`, `done`, `stats`.
 3. ✓ CI/CD for tests and docs (GitHub Actions, Pages).
 4. ✓ Adaptive difficulty, `profile`, `help-now`.
-5. Config, provider layer (any model), API keys.
-6. AI task generation with validation, safety filter and template fallback.
-7. Encouragement blended from the tone sliders, with automatic sincere fallback.
+5. ✓ Config, provider layer (any model), API keys.
+6. ✓ AI task generation with validation, safety filter and template fallback.
+7. ✓ Encouragement blended from the tone sliders, with automatic sincere fallback.
 8. Security and privacy hardening.
 9. Polish and release.
 

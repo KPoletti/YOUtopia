@@ -1,0 +1,66 @@
+# Encouragement phrase bank, one list per kind and tone trait.
+#
+# Rules (checked by tests/test_encouragement.py):
+# - Sarcasm and rudeness tease the task, never the person: those phrases must mention
+#   the task ({task} or the word "task") and never say "you're" or "you are".
+# - Guilt is part of every user's blend (GUILT_WEIGHT in encouragement.py). Guilt phrases
+#   nag about the tasks waiting; they never insult the person.
+# - Outside the guilt lists, no guilt, blame or penalty wording (GUILT_PHRASES).
+# - `done` phrases may use {task}, the task's title.
+
+done:
+  sincerity:
+    - You did that. It counts, and so do you.
+    - '"{task}" done. That took real effort, and it matters.'
+    - Nicely done. Small things done well add up.
+    - You showed up for yourself today. That's worth noticing.
+    - Done, and done with care.
+    - That's one more good thing you made happen today.
+  humor:
+    - '"{task}": defeated. The scoreboard thanks you.'
+    - Somewhere, a tiny trumpet just played in your honour.
+    - Achievement unlocked. No boss music required.
+    - The universe has been notified. It's doing a small, awkward dance.
+    - '"{task}" never stood a chance.'
+    - Quest complete. Your XP bar is glowing.
+  sarcasm:
+    - 'Wow. "{task}". Truly the great challenge of our age.'
+    - '"{task}" really thought it was going to be a problem. Adorable.'
+    - 'Oh no, "{task}" is done. However will it cope.'
+    - 'Breaking news: "{task}" badly overestimated itself.'
+    - '"{task}", the task famously described as impossible. By itself.'
+  rudeness:
+    - '"{task}" was a pushover and everyone knew it.'
+    - That task folded like cheap furniture.
+    - '"{task}"? Flattened. It had it coming.'
+    - '"{task}" put up the fight of a damp napkin.'
+    - 'Get wrecked, "{task}".'
+  guilt:
+    - 'Finally. "{task}" had been waiting a while.'
+    - One down. The rest of today's list noticed how long that took.
+    - Done, at last. The other tasks would like a word.
+    - Good. Imagine how it would feel if you'd done it yesterday.
+    - That's one. Your list was starting to feel neglected.
+
+greeting:
+  sincerity:
+    - Good to see you. Here's today, at whatever pace suits you.
+    - Welcome. Any one of these is a good day's work.
+    - Here's today's set. Pick what feels right, swap what doesn't.
+    - Nice to have you here. Start wherever you like.
+  humor:
+    - Your daily side quests have arrived, freshly polished.
+    - Today's assignments, hand-picked by a very enthusiastic algorithm.
+    - Three tiny adventures, no dragons. Probably.
+  sarcasm:
+    - Today's tasks, bracing themselves. As they should.
+    - 'Behold: today''s tasks, each convinced it''s a big deal.'
+    - Today's tasks have arrived, wildly overconfident as usual.
+  rudeness:
+    - Today's tasks are here, and frankly they look soft.
+    - Here are today's tasks. Flimsy little things. Go on, flatten them.
+  guilt:
+    - Your tasks have been sitting here all this time. They didn't complain. They just waited.
+    - Here's today's list. Again. It hasn't gone anywhere.
+    - These won't do themselves, you know.
+    - Today's tasks, still waiting on you. No pressure. (Some pressure.)
