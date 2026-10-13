@@ -159,7 +159,7 @@ hide:
 <section class="yt-section yt-reveal" markdown>
 <p class="yt-eyebrow">Six departments, zero layoffs</p>
 <h2>Your AI has thoughtfully diversified your workload</h2>
-<p class="yt-lead">Your daily jobs rotate across six areas, and each one grows at its own pace. Promotions are automatic. Gratitude is optional, but noted.</p>
+<p class="yt-lead">Your daily jobs rotate across seven areas, and each one grows at its own pace. Promotions are automatic. Gratitude is optional, but noted.</p>
 <div class="yt-domains" markdown>
 <div class="yt-domain" style="--c1: #f97316; --c2: #facc15" markdown>
 :lucide-footprints:
@@ -196,6 +196,12 @@ hide:
 <h3>Caring</h3>
 <p>Look after people, plants and yourself.</p>
 <p class="yt-example">"Tend something living"</p>
+</div>
+<div class="yt-domain" style="--c1: #8b5cf6; --c2: #06b6d4" markdown>
+:lucide-sigma:
+<h3>Problems</h3>
+<p>Coding, maths and science puzzles, pen and paper friendly.</p>
+<p class="yt-example">"Trace the loop"</p>
 </div>
 </div>
 </section>

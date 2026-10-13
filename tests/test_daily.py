@@ -92,7 +92,7 @@ def test_swap_rejects_done_and_unknown_tasks(session, profile):
 
 def test_complete_records_completion_and_success(session, profile):
     tasks = today(session, profile)
-    task = daily.complete_task(session, DAY, 3, note="  lovely ")
+    task = daily.complete_task(session, DAY, 3, note="  lovely ").task
 
     assert task.status == TaskStatus.DONE
     completion = session.exec(select(Completion)).one()

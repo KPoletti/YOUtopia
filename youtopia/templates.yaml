@@ -560,3 +560,105 @@
     Get two or more people to join you in a small kindness, such as writing cards for a
     care home or collecting donations, and set it in motion.
   done_criteria: At least two others have agreed to join.
+
+# --- problems ---------------------------------------------------------------
+# Coding, maths and science problems. Each problem is written into the
+# task so it works offline, and on paper when no computer is to hand.
+- title: Mental maths warm-up
+  domain: problems
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Without a calculator, work out: 17 + 38, 9 x 7, 144 / 12, 25% of 80, and
+    half of 3/4. Then check each one another way.
+  done_criteria: All five answered and checked.
+
+- title: Why is the sky blue?
+  domain: problems
+  difficulty: 1
+  duration_minutes: 10
+  instructions: >-
+    Write down your best guess for why the sky is blue and sunsets are red. Then
+    look it up and note one thing your guess got right and one it missed.
+  done_criteria: Your guess and the two notes are written down.
+
+- title: Trace the loop
+  domain: problems
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    On paper, predict what this prints, step by step: total = 0; for i in 1, 2,
+    3, 4: if i is even, add i * i to total; print total. Then run it in any
+    language, or check it with a friend, to see if you were right.
+  done_criteria: You have a written prediction and know whether it was right.
+
+- title: Estimate it
+  domain: problems
+  difficulty: 2
+  duration_minutes: 15
+  instructions: >-
+    Estimate how many times your heart beats in a year. Write each assumption you
+    make, then compare your answer with a looked-up figure.
+  done_criteria: An estimate with its assumptions, within a factor of ten.
+
+- title: FizzBuzz, your way
+  domain: problems
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Write a program, or pseudocode on paper, that counts 1 to 30, saying "Fizz"
+    for multiples of 3, "Buzz" for multiples of 5 and "FizzBuzz" for both. Then
+    change it so 7 says "Bang".
+  done_criteria: Both versions are written and give the right output for 1 to 30.
+
+- title: Kitchen science
+  domain: problems
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Predict, then test: does a cube of ice melt faster in plain water or in salty
+    water at room temperature? Use two cups of the same size and time them. Explain
+    the result in two sentences.
+  done_criteria: A prediction, two timings and a short explanation.
+  requires: [hands]
+
+- title: Prove it
+  domain: problems
+  difficulty: 4
+  duration_minutes: 25
+  instructions: >-
+    Show that the sum of any two odd numbers is even, and that the sum of the
+    first n odd numbers is n squared. A sketch of dots or a few lines of algebra
+    are both fine.
+  done_criteria: Both arguments written so someone else could follow them.
+
+- title: Palindrome checker
+  domain: problems
+  difficulty: 4
+  duration_minutes: 30
+  instructions: >-
+    Write a function that says whether a phrase reads the same backwards,
+    ignoring spaces, punctuation and case ("Never odd or even" counts). Test it
+    on three phrases that should pass and three that shouldn't.
+  done_criteria: The function works on all six test phrases.
+
+- title: Small simulation
+  domain: problems
+  difficulty: 5
+  duration_minutes: 45
+  instructions: >-
+    Write a short program that rolls two dice 10,000 times and counts each total.
+    Predict which total is most common and how often it should come up, then
+    compare with your results. No computer? Work out the exact odds of every total
+    in a table instead.
+  done_criteria: Your prediction, the counts or table, and a sentence comparing them.
+
+- title: Explain a physics puzzle
+  domain: problems
+  difficulty: 5
+  duration_minutes: 40
+  instructions: >-
+    A boat floats in a pool carrying a heavy rock. The rock is dropped into the
+    water and sinks. Does the pool's water level rise, fall or stay the same?
+    Work it out with your reasoning written down before you look it up.
+  done_criteria: A written answer with reasoning, checked against a source.

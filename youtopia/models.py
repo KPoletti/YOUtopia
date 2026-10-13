@@ -18,6 +18,7 @@ class Domain(StrEnum):
     SOCIAL = "social"
     LEARNING = "learning"
     CARING = "caring"
+    PROBLEMS = "problems"
 
 
 class TaskStatus(StrEnum):
@@ -77,6 +78,10 @@ class SkillLevel(SQLModel, table=True):
     domain: Domain = Field(unique=True)
     level: int = Field(default=MIN_LEVEL, ge=MIN_LEVEL, le=MAX_LEVEL)
     recent_successes: int = 0
+    recent_declines: int = 0
+    recent_misses: int = 0
+    # Last past day whose unfinished tasks were counted as misses.
+    last_evaluated: date | None = None
 
 
 class Task(SQLModel, table=True):

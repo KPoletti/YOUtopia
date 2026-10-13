@@ -25,7 +25,8 @@ youtopia/
   stats.py          # levels, history, streaks, milestones
   generator.py      # task generation: AI first, templates fallback
   templates.yaml    # built-in task library
-  difficulty.py     # adaptive difficulty rules              (planned, M4)
+  difficulty.py     # adaptive difficulty rules
+  support.py        # static help-now resources
   config.py         # ~/.youtopia/config.toml                 (planned, M5)
   secrets.py        # API key lookup: env vars, then keyring  (planned, M5)
   providers/        # Provider protocol + adapters            (planned, M5)
@@ -55,7 +56,7 @@ zensical.toml
 - **Task**: title, instructions, domain, difficulty 1–5, duration_minutes, done_criteria, offered_on, status (`offered` | `done` | `declined`)
 - **Completion**: task_id, completed_at, note
 
-Domains: physical, creative, practical, social, learning, caring.
+Domains: physical, creative, practical, social, learning, caring, problems (coding, maths and science).
 
 ## Rules that must hold
 
@@ -83,7 +84,7 @@ Full steps, acceptance criteria and security checks: [docs/roadmap.md](docs/road
 1. ✓ Scaffold, `init`, storage, tests.
 2. ✓ Daily loop with templates only: `today`, `swap`, `done`, `stats`.
 3. ✓ CI/CD for tests and docs (GitHub Actions, Pages).
-4. Adaptive difficulty, `profile`, `help-now`.
+4. ✓ Adaptive difficulty, `profile`, `help-now`.
 5. Config, provider layer (any model), API keys.
 6. AI task generation with validation, safety filter and template fallback.
 7. Encouragement blended from the tone sliders, with automatic sincere fallback.

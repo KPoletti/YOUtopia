@@ -12,6 +12,8 @@ from youtopia.models import Completion, Domain, SkillLevel, Task
 STREAK_GRACE_DAYS = 2
 COMPLETION_MILESTONES = (1, 5, 10, 25, 50, 100, 250, 500)
 STREAK_MILESTONES = (3, 7, 30, 100)
+# Fixed at the original six areas, so adding an area never takes the milestone away.
+DOMAINS_MILESTONE = 6
 HISTORY_LIMIT = 10
 
 
@@ -64,8 +66,8 @@ def current_streak(active_days: list[date], today: date) -> int:
 def milestones(total: int, best_streak: int, domains_tried: int) -> tuple[list[str], str | None]:
     reached = [_completion_label(n) for n in COMPLETION_MILESTONES if total >= n]
     reached += [f"{n}-day streak" for n in STREAK_MILESTONES if best_streak >= n]
-    if domains_tried == len(Domain):
-        reached.append("Tried every domain")
+    if domains_tried >= DOMAINS_MILESTONE:
+        reached.append(f"Tried {DOMAINS_MILESTONE} domains")
     upcoming = next((n for n in COMPLETION_MILESTONES if total < n), None)
     next_label = f"{_completion_label(upcoming)} ({upcoming - total} to go)" if upcoming else None
     return reached, next_label

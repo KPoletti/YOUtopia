@@ -3,11 +3,12 @@
 import random
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 
 from sqlmodel import Session, col, func, select
 
-from youtopia import generator
+from youtopia import difficulty, generator
+from youtopia.difficulty import LevelChange
 from youtopia.generator import History, TaskTemplate
 from youtopia.models import Completion, Domain, Profile, SkillLevel, Task, TaskStatus
 
@@ -22,6 +23,13 @@ class DailyError(ValueError):
 class SwapResult:
     declined: Task
     replacement: Task | None
+    level_change: LevelChange | None = None
+
+
+@dataclass
+class CompletionResult:
+    task: Task
+    level_change: LevelChange | None = None
 
 
 def todays_tasks(session: Session, day: date) -> list[Task]:
@@ -42,7 +50,11 @@ def ensure_today(
     rng: random.Random | None = None,
     templates: Sequence[TaskTemplate] | None = None,
 ) -> list[Task]:
-    """Return today's tasks, generating a fresh set if none have been offered yet."""
+    """Return today's tasks, generating a fresh set if none have been offered yet.
+
+    Unfinished tasks from past days are counted as misses first (see `evaluate_misses`).
+    """
+    evaluate_misses(session, profile, day)
     if existing := todays_tasks(session, day):
         return existing
     rng = rng or random.Random()
@@ -77,6 +89,9 @@ def swap_task(
         raise DailyError(f"Task {number} is already done, so there's nothing to swap.")
     task.status = TaskStatus.DECLINED
     session.add(task)
+    skill = _skill(session, task.domain, task.difficulty)
+    level_change = difficulty.record_decline(skill)
+    session.add(skill)
 
     others = [t for t in todays_tasks(session, day) if t.id != task.id]
     avoid = {t.domain for t in others} | {task.domain}
@@ -88,10 +103,12 @@ def swap_task(
     if replacement:
         session.add(replacement)
     session.flush()
-    return SwapResult(declined=task, replacement=replacement)
+    return SwapResult(declined=task, replacement=replacement, level_change=level_change)
 
 
-def complete_task(session: Session, day: date, number: int, note: str | None = None) -> Task:
+def complete_task(
+    session: Session, day: date, number: int, note: str | None = None
+) -> CompletionResult:
     task = _get_task(session, day, number)
     if task.status == TaskStatus.DONE:
         raise DailyError(f"Task {number} is already marked done.")
@@ -99,13 +116,49 @@ def complete_task(session: Session, day: date, number: int, note: str | None = N
     session.add(task)
     session.add(Completion(task_id=task.id, note=note or None))
 
-    skill = session.exec(select(SkillLevel).where(SkillLevel.domain == task.domain)).first()
-    if skill is None:
-        skill = SkillLevel(domain=task.domain, level=task.difficulty)
-    skill.recent_successes += 1
+    skill = _skill(session, task.domain, task.difficulty)
+    level_change = difficulty.record_success(skill, task.difficulty)
     session.add(skill)
     session.flush()
-    return task
+    return CompletionResult(task=task, level_change=level_change)
+
+
+def evaluate_misses(session: Session, profile: Profile, day: date) -> list[LevelChange]:
+    """Count tasks from past days that are still `offered` as misses, once each.
+
+    Only days that had tasks can produce misses, so time away never piles up.
+    Running it again on the same day changes nothing.
+    """
+    yesterday = day - timedelta(days=1)
+    unfinished = session.exec(
+        select(Task.domain, Task.offered_on).where(
+            Task.status == TaskStatus.OFFERED, Task.offered_on < day
+        )
+    ).all()
+    domains = {Domain(d) for d, _ in unfinished} | {
+        Domain(s.domain) for s in session.exec(select(SkillLevel))
+    }
+    changes = []
+    for domain in sorted(domains):
+        skill = _skill(session, domain, profile.preferred_challenge)
+        if skill.last_evaluated is not None and skill.last_evaluated >= yesterday:
+            continue
+        misses = sum(
+            1
+            for d, offered in unfinished
+            if d == domain and (skill.last_evaluated is None or offered > skill.last_evaluated)
+        )
+        if change := difficulty.record_misses(skill, misses):
+            changes.append(change)
+        skill.last_evaluated = yesterday
+        session.add(skill)
+    session.flush()
+    return changes
+
+
+def _skill(session: Session, domain: Domain, default_level: int) -> SkillLevel:
+    skill = session.exec(select(SkillLevel).where(SkillLevel.domain == domain)).first()
+    return skill or SkillLevel(domain=domain, level=default_level)
 
 
 def _get_task(session: Session, day: date, number: int) -> Task:

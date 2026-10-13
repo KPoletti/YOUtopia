@@ -49,7 +49,6 @@ youtopia help-now
 ```
 
 This shows support and crisis resources instantly. It works offline and never involves AI.
-*(Arrives in M4.)*
 
 !!! danger "If you are in immediate danger"
     Call your local emergency number now (112 in the EU, 911 in the US, 999 in the UK).
