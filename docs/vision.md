@@ -41,7 +41,7 @@ the satisfaction of a thing well made, the feeling of getting better at somethin
 a friend who's glad you called, a neighbour you helped.
 
 So the machines, in their infinite benevolence, decided to give you a job again.
-Not a job you need. A job you'd *want*: three small ones a day, picked just for you.
+Not a job you need. A job you'd *want*: three small ones a day (more if you ask), picked just for you.
 They ask nothing in return. (A little gratitude would be nice. They'll never say so.)
 
 YOUtopia exists to make those jobs easy to reach every single day.
@@ -54,10 +54,10 @@ Each principle below comes with the concrete rule in the app that keeps it hones
 
 A good day isn't measured in output. It's measured in meaning. (Your AI handles the output now. You're welcome.)
 
-- Tasks span seven areas of a flourishing life: **physical, creative, practical,
-  social, learning, caring and problems** (coding, maths and science).
+- Tasks span seven departments of honest grunt work: **labour, production, chores,
+  outreach, training, caretaking and tickets** (coding, maths and science problems).
 - Each day's set rotates across them, so no single area takes over.
-- There are never more than **three** tasks a day. Enough to feel purposeful, never enough to feel like a job.
+- Each day opens with **three** tasks. Want more? `youtopia more` has no daily limit.
 
 </div>
 
@@ -76,13 +76,14 @@ Your AI is watching, of course, but only supportively.
 
 <div class="yt-principle" markdown>
 
-## 3. Kindness built in
+## 3. Progress you keep
 
-Utopia doesn't punish you for having a life. Your AI would never. It's far too gracious.
+Utopia never takes back what you've done. It may sigh about what you haven't.
 
-- **No penalties.** Declining a task is just a swap. Missing a day costs nothing.
+- **No penalties.** Declining a task is just a swap. Missing a day costs no progress.
 - **Forgiving streaks.** A streak survives a couple of days off in a row, and your best streak is always kept.
-- **No guilt messaging, ever.** This is a hard rule, and tests enforce it.
+- **Some guilt, for everyone.** Messages include a share of guilt-tripping about the tasks
+  left waiting. It never insults you, and it switches off when you're having a rough stretch.
 
 </div>
 
@@ -92,8 +93,9 @@ Utopia doesn't punish you for having a life. Your AI would never. It's far too g
 
 Some people like a warm hug. Some like a friend who roasts the dishes they just washed.
 
-- Encouragement blends four [tone sliders](tone.md): sincerity, humor, sarcasm and rudeness.
-- Teasing always targets the *task*, never *you*.
+- Encouragement blends four [tone sliders](tone.md) (sincerity, humor, sarcasm and
+  rudeness) plus a fixed share of guilt.
+- Teasing always targets the *task*, and nothing ever insults *you*.
 - When you're having a rough stretch, YOUtopia notices and quietly switches to sincere until you're back.
 
 </div>
@@ -105,7 +107,7 @@ Some people like a warm hug. Some like a friend who roasts the dishes they just 
 The intelligence that makes abundance possible should serve you, not lock you in.
 How magnanimous of it.
 
-- YOUtopia will work with **any model**: hosted providers like Anthropic and OpenAI,
+- YOUtopia works with **any model**: hosted providers like Anthropic and OpenAI,
   any OpenAI-compatible endpoint, or a **fully local model** via Ollama or LM Studio.
 - With no AI at all, a built-in library of tasks keeps everything working offline.
 - See [AI providers](ai-providers.md).
@@ -132,7 +134,7 @@ A utopia you can't trust isn't one. Here, the jokes stop and the rules start.
 
 The best part of a world without drudgery is having time for one another.
 
-- The **social** and **caring** areas are first-class, not afterthoughts.
+- The **outreach** and **caretaking** areas are first-class, not afterthoughts.
 - `youtopia help-now` will always show real support and crisis resources, instantly and offline.
 - Nobody should have to flourish alone.
 

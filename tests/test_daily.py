@@ -4,7 +4,7 @@ from datetime import date, timedelta
 import pytest
 from sqlmodel import select
 
-from youtopia import daily
+from youtopia import daily, generator
 from youtopia import profile as profiles
 from youtopia.models import Completion, Domain, SkillLevel, Task, TaskStatus
 
@@ -33,7 +33,7 @@ def test_ensure_today_is_stable_within_a_day(session, profile):
     first = today(session, profile, seed=1)
     second = today(session, profile, seed=2)
     assert [t.id for t in first] == [t.id for t in second]
-    assert len(session.exec(select(Task)).all()) == daily.MAX_TASKS_PER_DAY
+    assert len(session.exec(select(Task)).all()) == daily.DAILY_SET_SIZE
 
 
 def test_domains_rotate_across_days(session, profile):
@@ -44,7 +44,7 @@ def test_domains_rotate_across_days(session, profile):
 
 def test_respects_accessibility_limits(session):
     data = profiles.ProfileInput(
-        interests=[Domain.PHYSICAL],
+        interests=[Domain.LABOUR],
         minutes_per_day=60,
         accessibility_limits=["wheelchair user"],
     )
@@ -69,7 +69,7 @@ def test_swap_declines_and_replaces_in_same_slot(session, profile):
     assert result.replacement.slot == 2
     assert result.replacement.title not in {t.title for t in tasks}
     active = daily.todays_tasks(session, DAY)
-    assert len(active) == daily.MAX_TASKS_PER_DAY
+    assert len(active) == daily.DAILY_SET_SIZE
     assert len({t.domain for t in active}) == 3
 
 
@@ -112,3 +112,34 @@ def test_complete_twice_is_rejected(session, profile):
 def test_actions_before_today_ask_to_run_today(session, profile):
     with pytest.raises(daily.DailyError, match="youtopia today"):
         daily.complete_task(session, DAY, 1)
+
+
+def test_more_adds_tasks_past_the_daily_set(session, profile):
+    today(session, profile)
+    added = daily.more_tasks(session, profile, DAY, 10, random.Random(0)).tasks
+    assert [t.slot for t in added] == list(range(4, 14))
+    active = daily.todays_tasks(session, DAY)
+    assert len(active) == 13  # no daily cap
+    assert len({t.title for t in active}) == 13  # never the same task twice in a day
+    assert len({t.domain for t in added[:4]}) == 4  # still rotates areas
+
+
+def test_more_starts_the_day_if_needed_and_keeps_slots_unique(session, profile):
+    added = daily.more_tasks(session, profile, DAY, 1, random.Random(0)).tasks
+    assert added[0].slot == daily.DAILY_SET_SIZE + 1
+    daily.swap_task(session, profile, DAY, 4, random.Random(0))
+    more = daily.more_tasks(session, profile, DAY, 1, random.Random(0)).tasks
+    assert more[0].slot == 5
+    assert daily.complete_task(session, DAY, 5).task.id == more[0].id
+
+
+def test_more_stops_when_the_library_runs_out(session, profile):
+    available = len(generator.eligible_templates(generator.load_templates(), profile))
+    added = daily.more_tasks(session, profile, DAY, available + 50, random.Random(0)).tasks
+    assert len(daily.todays_tasks(session, DAY)) == available
+    assert len(added) == available - daily.DAILY_SET_SIZE
+
+
+def test_more_needs_a_positive_count(session, profile):
+    with pytest.raises(daily.DailyError):
+        daily.more_tasks(session, profile, DAY, 0)

@@ -19,7 +19,7 @@ def make_profile(**overrides) -> Profile:
     return Profile(**values)
 
 
-def tpl(title, domain=Domain.CREATIVE, difficulty=2, minutes=10, requires=()) -> TaskTemplate:
+def tpl(title, domain=Domain.PRODUCTION, difficulty=2, minutes=10, requires=()) -> TaskTemplate:
     return TaskTemplate(
         title=title,
         instructions="Do it.",
@@ -61,11 +61,11 @@ def test_short_tasks_exist_in_every_domain():
     [
         "- title: X\n  domain: cooking\n  difficulty: 1\n  duration_minutes: 5\n"
         "  instructions: a\n  done_criteria: b\n",
-        "- title: X\n  domain: creative\n  difficulty: 9\n  duration_minutes: 5\n"
+        "- title: X\n  domain: production\n  difficulty: 9\n  duration_minutes: 5\n"
         "  instructions: a\n  done_criteria: b\n",
-        "- title: X\n  domain: creative\n  difficulty: 1\n  duration_minutes: 5\n"
+        "- title: X\n  domain: production\n  difficulty: 1\n  duration_minutes: 5\n"
         "  instructions: a\n  done_criteria: b\n  requires: [flying]\n",
-        "- title: X\n  domain: creative\n  difficulty: 1\n  duration_minutes: 5\n",
+        "- title: X\n  domain: production\n  difficulty: 1\n  duration_minutes: 5\n",
     ],
 )
 def test_parse_templates_rejects_bad_entries(text):
@@ -99,26 +99,31 @@ def test_eligible_respects_time_and_accessibility():
 
 
 def test_pick_prefers_interests():
-    candidates = [tpl("a", Domain.PHYSICAL), tpl("b", Domain.LEARNING)]
-    profile = make_profile(interests=["learning"])
-    assert pick(candidates, profile).domain == Domain.LEARNING
+    candidates = [tpl("a", Domain.LABOUR), tpl("b", Domain.TRAINING)]
+    profile = make_profile(interests=["training"])
+    assert pick(candidates, profile).domain == Domain.TRAINING
 
 
 def test_pick_falls_back_to_other_domains_when_interests_are_exhausted():
-    candidates = [tpl("a", Domain.PHYSICAL)]
-    assert pick(candidates, make_profile(interests=["learning"])).title == "a"
+    candidates = [tpl("a", Domain.LABOUR)]
+    assert pick(candidates, make_profile(interests=["training"])).title == "a"
 
 
 def test_pick_rotates_away_from_avoided_and_recent_domains():
-    candidates = [tpl("a", Domain.CREATIVE), tpl("b", Domain.SOCIAL), tpl("c", Domain.CARING)]
-    history = History(domain_last_offered={Domain.SOCIAL: date(2026, 1, 1)})
-    # creative is avoided (already in today's set); caring was never offered, social was.
-    assert pick(candidates, history=history, avoid=[Domain.CREATIVE]).domain == Domain.CARING
+    candidates = [
+        tpl("a", Domain.PRODUCTION),
+        tpl("b", Domain.OUTREACH),
+        tpl("c", Domain.CARETAKING),
+    ]
+    history = History(domain_last_offered={Domain.OUTREACH: date(2026, 1, 1)})
+    # production is avoided (already in today's set); caretaking was never offered,
+    # outreach was.
+    assert pick(candidates, history=history, avoid=[Domain.PRODUCTION]).domain == Domain.CARETAKING
 
 
 def test_pick_matches_difficulty_to_level():
     candidates = [tpl(f"d{n}", difficulty=n) for n in range(1, 6)]
-    assert pick(candidates, levels={Domain.CREATIVE: 4}).difficulty == 4
+    assert pick(candidates, levels={Domain.PRODUCTION: 4}).difficulty == 4
 
 
 def test_pick_avoids_recent_templates_and_never_repeats_today():

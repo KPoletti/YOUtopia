@@ -5,10 +5,10 @@ import pytest
 from sqlmodel import select
 from typer.testing import CliRunner
 
-from tests.guilt import GUILT_PHRASES
 from youtopia import cli, difficulty
 from youtopia.cli import app
 from youtopia.db import session_scope
+from youtopia.encouragement import GUILT_PHRASES
 from youtopia.models import Domain, SkillLevel, Task
 from youtopia.profile import get_profile
 
@@ -20,7 +20,7 @@ def initialised(monkeypatch):
     monkeypatch.setattr(cli, "_today", lambda: date(2026, 10, 13))
     result = runner.invoke(
         app,
-        ["init", "--interests", "creative,learning", "--minutes", "30", "--accessibility",
+        ["init", "--interests", "production,training", "--minutes", "30", "--accessibility",
          "none", "--challenge", "2", "--humor", "3"],
     )  # fmt: skip
     assert result.exit_code == 0, result.output
@@ -40,7 +40,7 @@ def test_profile_needs_a_profile():
 def test_profile_shows_answers_and_tone(initialised):
     result = runner.invoke(app, ["profile"])
     assert result.exit_code == 0, result.output
-    assert "creative, learning" in result.output
+    assert "production, training" in result.output
     assert "Humor" in result.output and "■■■□□ 3" in result.output
 
 
@@ -54,7 +54,7 @@ def test_edit_one_field_keeps_the_rest_and_progress(initialised):
     assert result.exit_code == 0, result.output
     profile = stored()
     assert profile.minutes_per_day == 45
-    assert profile.interests == ["creative", "learning"]
+    assert profile.interests == ["production", "training"]
     assert profile.humor == 3
     with session_scope() as session:
         assert session.get(SkillLevel, 1).level == 4
@@ -109,5 +109,6 @@ def test_level_changes_are_announced_kindly(initialised):
 
     result = runner.invoke(app, ["swap", "1"])
     assert result.exit_code == 0, result.output
-    assert "eased to level 1" in result.output
-    assert not [p for p in GUILT_PHRASES if p in result.output.lower()]
+    message = result.output.split("Swapped out")[0].lower()  # not the replacement task text
+    assert "eased to level 1" in message
+    assert not [p for p in GUILT_PHRASES if p in message]

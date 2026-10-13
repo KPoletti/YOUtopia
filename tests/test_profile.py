@@ -7,7 +7,7 @@ from youtopia.models import DEFAULT_TONE, Domain, SkillLevel, ToneMix
 
 def make_input(**overrides) -> profiles.ProfileInput:
     values = dict(
-        interests=[Domain.CREATIVE, Domain.LEARNING],
+        interests=[Domain.PRODUCTION, Domain.TRAINING],
         minutes_per_day=20,
         accessibility_limits=["no kneeling"],
         preferred_challenge=3,
@@ -20,8 +20,10 @@ def make_input(**overrides) -> profiles.ProfileInput:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
-        ("creative, Learning", [Domain.CREATIVE, Domain.LEARNING]),
-        ("social,social", [Domain.SOCIAL]),
+        ("creative, Learning", [Domain.PRODUCTION, Domain.TRAINING]),  # old names still work
+        ("Chores, tickets", [Domain.CHORES, Domain.TICKETS]),
+        ("labour, physical", [Domain.LABOUR]),  # old and new name for one area
+        ("social,social", [Domain.OUTREACH]),
         ("all", list(Domain)),
         (" ALL ", list(Domain)),
     ],
@@ -30,7 +32,7 @@ def test_parse_interests(raw, expected):
     assert profiles.parse_interests(raw) == expected
 
 
-@pytest.mark.parametrize("raw", ["", " , ", "cooking", "creative, juggling"])
+@pytest.mark.parametrize("raw", ["", " , ", "cooking", "production, juggling"])
 def test_parse_interests_rejects_bad_input(raw):
     with pytest.raises(profiles.ProfileError):
         profiles.parse_interests(raw)
@@ -69,7 +71,7 @@ def test_save_profile_validates(session, overrides):
 def test_save_profile_creates_profile_and_skill_levels(session):
     saved = profiles.save_profile(session, make_input())
 
-    assert saved.interests == ["creative", "learning"]
+    assert saved.interests == ["production", "training"]
     assert saved.minutes_per_day == 20
     assert saved.accessibility_limits == ["no kneeling"]
     assert saved.tone == DEFAULT_TONE
@@ -80,13 +82,13 @@ def test_save_profile_creates_profile_and_skill_levels(session):
 
 
 def test_tone_defaults_to_mostly_sincere():
-    data = profiles.ProfileInput(interests=[Domain.CARING], minutes_per_day=10)
+    data = profiles.ProfileInput(interests=[Domain.CARETAKING], minutes_per_day=10)
     assert data.tone == ToneMix(sincerity=4, humor=1, sarcasm=0, rudeness=0)
 
 
 def test_resave_updates_single_profile_and_keeps_progress(session):
     profiles.save_profile(session, make_input())
-    creative = session.exec(select(SkillLevel).where(SkillLevel.domain == Domain.CREATIVE)).one()
+    creative = session.exec(select(SkillLevel).where(SkillLevel.domain == Domain.PRODUCTION)).one()
     creative.level = 5
     creative.recent_successes = 4
     session.add(creative)
@@ -97,5 +99,5 @@ def test_resave_updates_single_profile_and_keeps_progress(session):
 
     assert profiles.get_profile(session).tone == ToneMix(1, 2, 3, 4)
     assert len(session.exec(select(profiles.Profile)).all()) == 1
-    creative = session.exec(select(SkillLevel).where(SkillLevel.domain == Domain.CREATIVE)).one()
+    creative = session.exec(select(SkillLevel).where(SkillLevel.domain == Domain.PRODUCTION)).one()
     assert (creative.level, creative.recent_successes) == (5, 4)

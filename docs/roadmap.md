@@ -16,10 +16,10 @@ tests, lint, docs build, and any security checks listed for it.
 | M2 | Daily loop with templates: `today`, `swap`, `done`, `stats` | :material-check: Done |
 | M3 | CI/CD for tests and documentation | :material-check: Done |
 | M4 | Adaptive difficulty, `profile`, `help-now` | :material-check: Done |
-| M5 | Config, provider layer and API keys | Next |
-| M6 | AI task generation, any model, with validation and safety | Planned |
-| M7 | Encouragement from the tone sliders | Planned |
-| M8 | Security and privacy hardening | Planned |
+| M5 | Config, provider layer and API keys | :material-check: Done |
+| M6 | AI task generation, any model, with validation and safety | :material-check: Done |
+| M7 | Encouragement from the tone sliders | :material-check: Done |
+| M8 | Security and privacy hardening | Next |
 | M9 | Polish and release | Planned |
 
 ---
@@ -35,7 +35,7 @@ A library of 70 templates (`youtopia/templates.yaml`), plus:
 
 - **Selection:** tasks are filtered by time and accessibility and rotated across areas,
   with difficulty matched to your level in each area.
-- **Problem sets:** a seventh area, `problems`, with coding, maths and science problems, from
+- **Problem sets:** a seventh area (first `problems`, now `tickets`) with coding, maths and science problems, from
   mental arithmetic (level 1) to a dice simulation (level 5), all workable offline.
 - **Commands:** `today`, `swap` (the replacement keeps the same slot), `done --note`,
   and `stats` with forgiving streaks and milestones.
@@ -118,15 +118,15 @@ A library of 70 templates (`youtopia/templates.yaml`), plus:
   Declines and misses never clear successes.
 - Misses are counted once per unfinished task, and ease by one level at most per check.
 - Older databases gain the new `SkillLevel` columns automatically (`db.ADDED_COLUMNS`).
-- Resources live in `youtopia/support.py`; `tests/guilt.py` holds the guilt-phrase list
-  that M7 reuses.
+- Resources live in `youtopia/support.py`. The guilt-phrase list now lives in
+  `encouragement.GUILT_PHRASES`; level-change messages still never use it.
 
 **Security checks:** `help-now` content is static and reviewed; no guilt wording in any
 level-change message (a test checks a phrase list).
 
 ---
 
-## M5: Config, provider layer and API keys
+## M5: Config, provider layer and API keys :material-check:
 
 **Goal:** YOUtopia can talk to any model, and handles keys safely.
 
@@ -162,17 +162,27 @@ level-change message (a test checks a phrase list).
 
 **Done when**
 
-- [ ] Tests (using an in-memory keyring and `httpx.MockTransport`) cover the key lookup order,
+- [x] Tests (using an in-memory keyring and `httpx.MockTransport`) cover the key lookup order,
       `auth` flows, plain-HTTP rejection, timeout and error mapping, and redaction.
-- [ ] A test asserts that a sample key never appears in CLI output, `config.toml` or the DB.
-- [ ] Tests can't reach the network (autouse fixture that blocks sockets).
+- [x] A test asserts that a sample key never appears in CLI output, `config.toml` or the DB.
+- [x] Tests can't reach the network (autouse fixture that blocks sockets).
+
+**Notes from the build**
+
+- The Anthropic SDK (1.x) runs on `httpx2`, so its tests use `httpx2.MockTransport`; the
+  OpenAI-compatible adapter uses `httpx`. Both retry once on a timeout or 5xx, never on 4xx.
+- `anthropic` defaults to `claude-opus-5-5` when `ai.model` is empty; every other provider
+  needs a model set. A refusal is treated like any other provider error (templates fill in).
+- `config.toml` is written with mode `0600`, rejects unknown keys (so no `api_key`), and
+  rejects control characters in values.
+- Added `ai.reword_encouragement` (default `false`) for M7.
 
 **Security checks:** keys only come from environment variables or the keyring; masked output;
 redacted errors; no key in `repr()` of config or provider objects; HTTPS rule enforced.
 
 ---
 
-## M6: AI task generation (any model)
+## M6: AI task generation (any model) :material-check:
 
 **Goal:** personalised AI tasks, never worse than the templates and never unsafe.
 
@@ -188,7 +198,7 @@ redacted errors; no key in `repr()` of config or provider objects; HTTPS rule en
       difficulty level means and the exact JSON output format.
     - User data is minimal: interest areas, minutes, accessibility limits, levels,
       the areas wanted and recent titles to avoid.
-    - Tasks in the `problems` area are coding, maths or science problems. The problem itself must
+    - Tasks in the `tickets` area are coding, maths or science problems. The problem itself must
       be in the instructions, solvable on paper, and sized to the difficulty level, like
       the problem-set templates.
 3. **Prompt-injection hygiene:** free text is placed inside a clearly marked data
@@ -213,17 +223,29 @@ redacted errors; no key in `repr()` of config or provider objects; HTTPS rule en
 
 **Done when**
 
-- [ ] The fake provider drives tests for good output, malformed JSON, too few tasks,
+- [x] The fake provider drives tests for good output, malformed JSON, too few tasks,
       unsafe content, over-time tasks, injection text, escape sequences and the call cap.
-- [ ] Generation never raises to the CLI; it degrades to templates.
-- [ ] Optional live tests run only when `YOUTOPIA_LIVE_TESTS=1`.
+- [x] Generation never raises to the CLI; it degrades to templates.
+- [x] Optional live tests run only when `YOUTOPIA_LIVE_TESTS=1` (keys from env vars).
+
+**Notes from the build**
+
+- Each set is planned from templates first; AI drafts replace planned slots in the same
+  area. So rotation and levels work the same with or without AI, and any slot can fall back.
+- The provider is built only when a call is about to happen, and a missing key doesn't use
+  up a call from the daily cap.
+- Safety also re-checks ability words (walk, kneel, listen, …) against the user's
+  accessibility limits, even when the model left the `requires` tag off.
+- The data-block markers are removed from free text, so user input can't close the block.
+- Escape stripping and Rich escaping live in `youtopia/terminal.py`, and are applied to
+  every task, note, title and error message the CLI prints.
 
 **Security checks:** nothing beyond the documented fields reaches the provider (a test
 inspects the outgoing prompt); escape-sequence test; safety filter test corpus.
 
 ---
 
-## M7: Encouragement from the tone sliders
+## M7: Encouragement from the tone sliders :material-check:
 
 **Goal:** messages that sound like *your* kind of friend.
 
@@ -241,12 +263,38 @@ inspects the outgoing prompt); escape-sequence test; safety filter test corpus.
 
 **Done when**
 
-- [ ] Seeded tests show the trait frequencies follow the slider weights.
-- [ ] The fallback triggers and clears correctly.
-- [ ] A template lint asserts that sarcastic and rude phrases target the task, and that no
-      phrase anywhere matches the guilt-phrase list.
+- [x] Seeded tests show the trait frequencies follow the slider weights.
+- [x] The fallback triggers and clears correctly.
+- [x] A template lint asserts that sarcastic and rude phrases target the task, and that no
+      phrase outside the guilt list matches the guilt-phrase list (see the changes below).
+
+**Notes from the build**
+
+- Phrases live in `youtopia/phrases.yaml`.
+- "Missed days" are calendar days since the last completion (or since the profile was
+  created); "declines in a row" are swaps since the last completion.
+- The message for the completion that ends a slump is still sincere; the blend returns after.
+- AI rewording applies to `done` messages only, so `today` never spends calls on greetings.
 
 **Security checks:** AI-reworded messages go through the same escape and length checks as tasks.
+
+---
+
+## Changes alongside M5–M7
+
+Product decisions made during this work, and where they live:
+
+- **Areas renamed for the grunt work they are:** `labour`, `production`, `chores`,
+  `outreach`, `training`, `caretaking` and `tickets` (was physical, creative, practical,
+  social, learning, caring and problems). Old names still work as input, and stored tasks,
+  skill levels and profiles are migrated on startup (`db._rename_domains`).
+- **Guilt for everyone:** guilt replaces the "no guilt messaging" rule. It is a fixed share
+  of every user's blend (`encouragement.GUILT_WEIGHT = 2`), not a slider. Guilt phrases
+  nag about waiting tasks, but never insult the person and never remove progress. The
+  sincere fallback still switches guilt off.
+- **No daily task limit:** `today` opens with 3 tasks (`daily.DAILY_SET_SIZE`) and
+  `youtopia more [N]` adds any number on top. AI calls remain capped by
+  `ai.max_calls_per_day`; past the cap, extras come from the library.
 
 ---
 
