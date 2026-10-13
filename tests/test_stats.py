@@ -25,6 +25,13 @@ def test_streak_ends_after_a_long_break_but_best_is_kept():
     assert [len(r) for r in stats.streak_runs([*days, d(2 + gap)])] == [3, 1]
 
 
+def test_domain_milestone_survives_new_domains():
+    reached, _ = stats.milestones(total=6, best_streak=0, domains_tried=len(Domain))
+    assert "Tried 6 domains" in reached
+    reached, _ = stats.milestones(total=5, best_streak=0, domains_tried=5)
+    assert "Tried 6 domains" not in reached
+
+
 def test_milestones():
     reached, upcoming = stats.milestones(total=5, best_streak=7, domains_tried=6)
     assert reached == [
@@ -32,7 +39,7 @@ def test_milestones():
         "5 tasks done",
         "3-day streak",
         "7-day streak",
-        "Tried every domain",
+        "Tried 6 domains",
     ]
     assert upcoming == "10 tasks done (5 to go)"
     assert stats.milestones(0, 0, 0) == ([], "First task done (1 to go)")

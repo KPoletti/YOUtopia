@@ -604,7 +604,7 @@
   animation-delay: var(--at, 0s);
 }
 
-/* ---------------------------------------------------------------- six domains */
+/* -------------------------------------------------------------- seven domains */
 
 .yt-domains {
   display: grid;
@@ -622,6 +622,11 @@
   background: var(--yt-card-bg);
   box-shadow: var(--yt-card-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* A lone card on the last row spans it, in both the 3- and 2-column layouts. */
+.md-typeset .yt-domain:last-child:nth-child(3n + 1) {
+  grid-column: 1 / -1;
 }
 
 .md-typeset .yt-domain::after {

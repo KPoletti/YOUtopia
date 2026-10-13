@@ -15,8 +15,8 @@ tests, lint, docs build, and any security checks listed for it.
 | M1 | Scaffold, `init`, storage, tests | :material-check: Done |
 | M2 | Daily loop with templates: `today`, `swap`, `done`, `stats` | :material-check: Done |
 | M3 | CI/CD for tests and documentation | :material-check: Done |
-| M4 | Adaptive difficulty, `profile`, `help-now` | Next |
-| M5 | Config, provider layer and API keys | Planned |
+| M4 | Adaptive difficulty, `profile`, `help-now` | :material-check: Done |
+| M5 | Config, provider layer and API keys | Next |
 | M6 | AI task generation, any model, with validation and safety | Planned |
 | M7 | Encouragement from the tone sliders | Planned |
 | M8 | Security and privacy hardening | Planned |
@@ -31,10 +31,12 @@ uv project, Typer + Rich CLI, SQLModel storage at `~/.youtopia` (overridable wit
 
 ## M2: Daily loop :material-check:
 
-A library of 60 templates (`youtopia/templates.yaml`), plus:
+A library of 70 templates (`youtopia/templates.yaml`), plus:
 
 - **Selection:** tasks are filtered by time and accessibility and rotated across areas,
   with difficulty matched to your level in each area.
+- **Problem sets:** a seventh area, `problems`, with coding, maths and science problems, from
+  mental arithmetic (level 1) to a dice simulation (level 5), all workable offline.
 - **Commands:** `today`, `swap` (the replacement keeps the same slot), `done --note`,
   and `stats` with forgiving streaks and milestones.
 
@@ -81,7 +83,7 @@ A library of 60 templates (`youtopia/templates.yaml`), plus:
 
 ---
 
-## M4: Adaptive difficulty, `profile` and `help-now`
+## M4: Adaptive difficulty, `profile` and `help-now` :material-check:
 
 **Goal:** tasks track your growth, and the command set is complete.
 
@@ -106,9 +108,18 @@ A library of 60 templates (`youtopia/templates.yaml`), plus:
 
 **Done when**
 
-- [ ] Tests cover promotion, easing, the 1 and 5 bounds, missed-day evaluation across gaps,
+- [x] Tests cover promotion, easing, the 1 and 5 bounds, missed-day evaluation across gaps,
       and that easing leaves stats unchanged.
-- [ ] `help-now` works with the network disabled.
+- [x] `help-now` works with the network disabled.
+
+**Notes from the build**
+
+- A completion clears the decline and miss counts, so easing needs them in a row.
+  Declines and misses never clear successes.
+- Misses are counted once per unfinished task, and ease by one level at most per check.
+- Older databases gain the new `SkillLevel` columns automatically (`db.ADDED_COLUMNS`).
+- Resources live in `youtopia/support.py`; `tests/guilt.py` holds the guilt-phrase list
+  that M7 reuses.
 
 **Security checks:** `help-now` content is static and reviewed; no guilt wording in any
 level-change message (a test checks a phrase list).
@@ -173,10 +184,13 @@ redacted errors; no key in `repr()` of config or provider objects; HTTPS rule en
       `pick_template`.
     - Add a `Task.source` field (`ai` | `template`).
 2. **Prompt:**
-    - A versioned system prompt states the safety rules, the six areas, what each
+    - A versioned system prompt states the safety rules, the seven areas, what each
       difficulty level means and the exact JSON output format.
     - User data is minimal: interest areas, minutes, accessibility limits, levels,
       the areas wanted and recent titles to avoid.
+    - Tasks in the `problems` area are coding, maths or science problems. The problem itself must
+      be in the instructions, solvable on paper, and sized to the difficulty level, like
+      the problem-set templates.
 3. **Prompt-injection hygiene:** free text is placed inside a clearly marked data
    block, capped at 200 characters per item, with control characters removed. The model is
    told to treat it as data.

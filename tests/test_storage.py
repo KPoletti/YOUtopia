@@ -4,7 +4,7 @@ from pathlib import Path
 from sqlmodel import select
 
 from youtopia import db
-from youtopia.models import Completion, Domain, Task, TaskStatus
+from youtopia.models import Completion, Domain, SkillLevel, Task, TaskStatus
 
 
 def test_db_lives_under_override(tmp_path):
@@ -40,3 +40,21 @@ def test_task_and_completion_round_trip(session):
     completion = session.exec(select(Completion)).one()
     assert completion.task_id == stored.id
     assert completion.completed_at is not None
+
+
+def test_older_database_gains_new_skill_columns():
+    import sqlite3
+
+    path = db.db_path()
+    path.parent.mkdir(parents=True)
+    with sqlite3.connect(path) as conn:  # the M2 shape of the table
+        conn.execute(
+            "CREATE TABLE skilllevel (id INTEGER PRIMARY KEY, domain VARCHAR NOT NULL UNIQUE,"
+            " level INTEGER NOT NULL, recent_successes INTEGER NOT NULL)"
+        )
+        conn.execute("INSERT INTO skilllevel VALUES (1, 'CREATIVE', 3, 2)")
+
+    with db.session_scope() as session:
+        skill = session.exec(select(SkillLevel)).one()
+        assert (skill.level, skill.recent_successes) == (3, 2)
+        assert (skill.recent_declines, skill.recent_misses, skill.last_evaluated) == (0, 0, None)

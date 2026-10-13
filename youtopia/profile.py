@@ -79,6 +79,17 @@ def validate(data: ProfileInput) -> None:
             raise ProfileError(f"{trait.capitalize()} must be between {TONE_MIN} and {TONE_MAX}.")
 
 
+def input_from(profile: Profile) -> ProfileInput:
+    """The editable fields of a saved profile, ready to change and save again."""
+    return ProfileInput(
+        interests=[Domain(i) for i in profile.interests],
+        minutes_per_day=profile.minutes_per_day,
+        accessibility_limits=list(profile.accessibility_limits),
+        preferred_challenge=profile.preferred_challenge,
+        tone=profile.tone,
+    )
+
+
 def get_profile(session: Session) -> Profile | None:
     return session.exec(select(Profile)).first()
 

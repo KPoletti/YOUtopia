@@ -2,7 +2,7 @@ from typer.testing import CliRunner
 
 from youtopia.cli import app
 from youtopia.db import session_scope
-from youtopia.models import DEFAULT_TONE, ToneMix
+from youtopia.models import DEFAULT_TONE, Domain, ToneMix
 from youtopia.profile import get_profile
 
 runner = CliRunner()
@@ -54,7 +54,7 @@ def test_init_interactive_reprompts_on_bad_input():
     assert "Unknown interest" in result.output
 
     profile = stored_profile()
-    assert len(profile.interests) == 6
+    assert len(profile.interests) == len(Domain)
     assert profile.minutes_per_day == 30
     assert profile.accessibility_limits == ["no stairs"]
     assert profile.preferred_challenge == 4

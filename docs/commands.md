@@ -14,7 +14,7 @@ Create or update your profile. It prompts for anything not given as a flag.
 
 | Flag | Meaning |
 | --- | --- |
-| `--interests TEXT` | Comma-separated areas (`physical`, `creative`, `practical`, `social`, `learning`, `caring`) or `all` |
+| `--interests TEXT` | Comma-separated areas (`physical`, `creative`, `practical`, `social`, `learning`, `caring`, `problems`) or `all` |
 | `--minutes N` | Minutes you can spare per day |
 | `--accessibility TEXT` | Comma-separated limits, or `none` |
 | `--challenge 1-5` | Preferred challenge |
@@ -40,11 +40,32 @@ Mark task `N` as complete, with an optional note for your history (or a thank-yo
 Your performance review, minus the anxiety: your level in each area, recent completions,
 total active days, your current and best streak, and the milestones you've reached.
 
-## Coming soon
+### How levels adapt
 
-!!! note "Arrives in M4"
-    - `youtopia profile`: view or edit a single profile field, including tone sliders.
-    - `youtopia help-now`: support and crisis resources, available instantly and offline.
+Each area has its own level, from 1 to 5, and today's tasks are matched to it.
+
+- **Up:** three completions at or above your level in an area raise it by one.
+- **Eased:** three swaps, or three tasks left unfinished on past days, ease it by one.
+  A completion clears those counts, and days with no tasks never count.
+- Levels stay between 1 and 5. Completions, streaks and milestones are never touched,
+  so easing only changes what you're offered, never what you've done.
+
+### `youtopia profile [--edit [FIELD]]`
+
+Show your profile. With `--edit`, answer the onboarding questions again with your
+current answers as defaults; add a field (`interests`, `minutes`, `accessibility`,
+`challenge` or `tone`) to change just that one. Levels and history are always kept.
+
+```bash
+youtopia profile --edit tone
+```
+
+### `youtopia help-now`
+
+Support and crisis resources: emergency numbers, helplines and
+[findahelpline.com](https://findahelpline.com). Works offline and without a profile, never uses AI.
+
+## Coming soon
 
 !!! note "Arrives in M5"
     - `youtopia config show` and `youtopia config set KEY VALUE`: choose an AI provider and model.

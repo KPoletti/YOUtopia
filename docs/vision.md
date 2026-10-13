@@ -54,8 +54,8 @@ Each principle below comes with the concrete rule in the app that keeps it hones
 
 A good day isn't measured in output. It's measured in meaning. (Your AI handles the output now. You're welcome.)
 
-- Tasks span six areas of a flourishing life: **physical, creative, practical,
-  social, learning and caring**.
+- Tasks span seven areas of a flourishing life: **physical, creative, practical,
+  social, learning, caring and problems** (coding, maths and science).
 - Each day's set rotates across them, so no single area takes over.
 - There are never more than **three** tasks a day. Enough to feel purposeful, never enough to feel like a job.
 

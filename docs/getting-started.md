@@ -38,7 +38,7 @@ A handful of questions, well under five minutes. Don't worry, you've already got
 
 | Question | Example | Why |
 | --- | --- | --- |
-| Interests | `creative, learning` or `all` | Which of the six areas to draw tasks from |
+| Interests | `creative, learning` or `all` | Which of the seven areas to draw tasks from |
 | Minutes per day | `20` | No task will ever be longer |
 | Accessibility limits | `no kneeling, low vision` or `none` | Tasks that need these are never offered |
 | Preferred challenge | `1` (gentle) to `5` (stretch) | Your starting level in every area |

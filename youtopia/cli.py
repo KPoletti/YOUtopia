@@ -10,15 +10,17 @@ from rich.panel import Panel
 from rich.table import Table
 from sqlmodel import Session
 
-from youtopia import daily, stats
+from youtopia import daily, stats, support
 from youtopia import profile as profiles
 from youtopia.db import session_scope
+from youtopia.difficulty import LevelChange
 from youtopia.models import (
     DEFAULT_TONE,
     MAX_LEVEL,
     MIN_LEVEL,
     TONE_MAX,
     TONE_MIN,
+    Domain,
     Profile,
     Task,
     TaskStatus,
@@ -31,6 +33,8 @@ TONE_PROMPTS = {
     "sarcasm": "Sarcasm (dry teasing of the task)",
     "rudeness": "Rudeness (blunt jabs at the task, never at you)",
 }
+
+EDITABLE_FIELDS = ("interests", "minutes", "accessibility", "challenge", "tone")
 
 app = typer.Typer(help="Small, achievable daily tasks matched to you.", no_args_is_help=True)
 console = Console()
@@ -99,12 +103,46 @@ def _choose_tone(flags: dict[str, int | None], scripted: bool) -> ToneMix:
     summary = ", ".join(f"{t} {v}" for t, v in defaults.items())
     if not typer.confirm(f"Customise encouragement tone? (default: {summary})", default=False):
         return DEFAULT_TONE
+    return _ask_tone(DEFAULT_TONE)
+
+
+def _ask_tone(current: ToneMix) -> ToneMix:
     console.print(f"Set each from {TONE_MIN} (none) to {TONE_MAX} (lots).")
+    values = current.as_dict()
     return ToneMix(
         **{
-            t: _ask(question, _parse_int_in(TONE_MIN, TONE_MAX, t.capitalize()), str(defaults[t]))
+            t: _ask(question, _parse_int_in(TONE_MIN, TONE_MAX, t.capitalize()), str(values[t]))
             for t, question in TONE_PROMPTS.items()
         }
+    )
+
+
+def _ask_interests(default: str) -> list[Domain]:
+    console.print(f"Interest areas: {', '.join(profiles.valid_domain_names())}")
+    return _ask(
+        "Which interest you? (comma-separated, or 'all')", profiles.parse_interests, default
+    )
+
+
+def _ask_minutes(default: str) -> int:
+    parser = _parse_int_in(1, profiles.MAX_MINUTES_PER_DAY, "Minutes per day")
+    return _ask("How many minutes a day can you spare?", parser, default)
+
+
+def _ask_accessibility(default: str) -> list[str]:
+    return _ask(
+        "Anything we should work around? (e.g. 'no kneeling, low vision', or 'none')",
+        profiles.parse_accessibility,
+        default,
+    )
+
+
+def _ask_challenge(default: str) -> int:
+    parser = _parse_int_in(MIN_LEVEL, MAX_LEVEL, "Preferred challenge")
+    return _ask(
+        f"How challenging should tasks be? ({MIN_LEVEL}=gentle, {MAX_LEVEL}=stretch)",
+        parser,
+        default,
     )
 
 
@@ -153,33 +191,19 @@ def init(
     challenge_parser = _parse_int_in(MIN_LEVEL, MAX_LEVEL, "Preferred challenge")
 
     if interests is None:
-        console.print(f"Interest areas: {', '.join(profiles.valid_domain_names())}")
-        chosen = _ask(
-            "Which interest you? (comma-separated, or 'all')", profiles.parse_interests, "all"
-        )
+        chosen = _ask_interests("all")
     else:
         chosen = _from_flag(interests, profiles.parse_interests)
 
-    if minutes is None:
-        minutes = _ask("How many minutes a day can you spare?", minutes_parser, "20")
-    else:
-        minutes = _from_flag(str(minutes), minutes_parser)
+    minutes = _ask_minutes("20") if minutes is None else _from_flag(str(minutes), minutes_parser)
 
     if accessibility is None:
-        limits = _ask(
-            "Anything we should work around? (e.g. 'no kneeling, low vision', or 'none')",
-            profiles.parse_accessibility,
-            "none",
-        )
+        limits = _ask_accessibility("none")
     else:
         limits = profiles.parse_accessibility(accessibility)
 
     if challenge is None:
-        challenge = _ask(
-            f"How challenging should tasks be? ({MIN_LEVEL}=gentle, {MAX_LEVEL}=stretch)",
-            challenge_parser,
-            "2",
-        )
+        challenge = _ask_challenge("2")
     else:
         challenge = _from_flag(str(challenge), challenge_parser)
 
@@ -222,6 +246,11 @@ def _level_dots(level: int) -> str:
     return "●" * level + "○" * (MAX_LEVEL - level)
 
 
+def _render_level_change(change: LevelChange) -> None:
+    style = "magenta" if change.raised else "cyan"
+    console.print(f"[{style}]{change.message()}[/{style}]")
+
+
 def _render_task(task: Task) -> None:
     done = task.status == TaskStatus.DONE
     meta = f"{task.domain} · {_level_dots(task.difficulty)} · {task.duration_minutes} min"
@@ -244,7 +273,10 @@ def today() -> None:
     """Show today's tasks, picking a fresh set if needed."""
     with session_scope() as session:
         profile = _require_profile(session)
+        changes = daily.evaluate_misses(session, profile, _today())
         tasks = daily.ensure_today(session, profile, _today())
+        for change in changes:
+            _render_level_change(change)
         if not tasks:
             console.print(
                 "Nothing in the library fits your time and accessibility limits right now. "
@@ -269,6 +301,8 @@ def swap(number: Annotated[int, typer.Argument(help="Task number from `youtopia 
         except daily.DailyError as err:
             console.print(f"[yellow]{err}[/yellow]")
             raise typer.Exit(code=1) from None
+        if result.level_change:
+            _render_level_change(result.level_change)
         if result.replacement is None:
             console.print(
                 f'Swapped out "{result.declined.title}". '
@@ -288,11 +322,13 @@ def done(
     with session_scope() as session:
         _require_profile(session)
         try:
-            task = daily.complete_task(session, _today(), number, note)
+            result = daily.complete_task(session, _today(), number, note)
         except daily.DailyError as err:
             console.print(f"[yellow]{err}[/yellow]")
             raise typer.Exit(code=1) from None
-        console.print(f'[green]✓[/green] "{task.title}" done. Nice work.')
+        console.print(f'[green]✓[/green] "{result.task.title}" done. Nice work.')
+        if result.level_change:
+            _render_level_change(result.level_change)
 
 
 @app.command(name="stats")
@@ -332,3 +368,65 @@ def show_stats() -> None:
         console.print("[bold]Milestones:[/bold] " + " · ".join(result.milestones))
     if result.next_milestone:
         console.print(f"[dim]Next: {result.next_milestone}[/dim]")
+
+
+@app.command(name="profile")
+def show_profile(
+    edit: Annotated[bool, typer.Option("--edit", help="Change your answers.")] = False,
+    field: Annotated[
+        str | None,
+        typer.Argument(help=f"With --edit, change just one of: {', '.join(EDITABLE_FIELDS)}."),
+    ] = None,
+) -> None:
+    """View your profile, or change it with --edit. Your progress is always kept."""
+    if field is not None and not edit:
+        console.print(f"To change {field}, run [bold]youtopia profile --edit {field}[/bold].")
+        raise typer.Exit(code=2)
+    if field is not None and field.lower() not in EDITABLE_FIELDS:
+        console.print(
+            f"[red]Unknown field {field!r}.[/red] Choose from: {', '.join(EDITABLE_FIELDS)}."
+        )
+        raise typer.Exit(code=2)
+
+    with session_scope() as session:
+        profile = _require_profile(session)
+        if not edit:
+            _render_profile(profile)
+            return
+        data = profiles.input_from(profile)
+
+    fields = [field.lower()] if field else list(EDITABLE_FIELDS)
+    if "interests" in fields:
+        data.interests = _ask_interests(", ".join(data.interests))
+    if "minutes" in fields:
+        data.minutes_per_day = _ask_minutes(str(data.minutes_per_day))
+    if "accessibility" in fields:
+        data.accessibility_limits = _ask_accessibility(
+            ", ".join(data.accessibility_limits) or "none"
+        )
+    if "challenge" in fields:
+        data.preferred_challenge = _ask_challenge(str(data.preferred_challenge))
+    if "tone" in fields:
+        data.tone = _ask_tone(data.tone)
+
+    with session_scope() as session:
+        _render_profile(profiles.save_profile(session, data))
+    console.print("[green]Saved.[/green] Your levels and history are unchanged.")
+
+
+@app.command(name="help-now")
+def help_now() -> None:
+    """Show support and crisis resources. Works offline, never uses AI."""
+    console.print(Panel(support.EMERGENCY_INTRO, title="Need help now?", border_style="red"))
+    numbers = Table(show_header=False, box=None, padding=(0, 2))
+    for r in support.EMERGENCY_NUMBERS:
+        numbers.add_row(r.name, f"[bold]{r.detail}[/bold]")
+    console.print(numbers)
+    console.print()
+    console.print("[bold]Someone to talk to[/bold]")
+    helplines = Table(show_header=False, box=None, padding=(0, 2))
+    for r in support.HELPLINES:
+        helplines.add_row(r.name, r.detail)
+    console.print(helplines)
+    console.print()
+    console.print(support.CLOSING)
