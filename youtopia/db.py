@@ -19,20 +19,33 @@ from youtopia import models  # registers tables on SQLModel.metadata
 HOME_ENV_VAR = "YOUTOPIA_HOME"
 DB_FILENAME = "youtopia.db"
 
-# Columns added after a table was first released: {table: {column: SQL definition}}.
-# create_all() only creates missing tables, so older databases get these via ALTER TABLE.
+DIR_MODE = 0o700
+FILE_MODE = 0o600
+
+# Columns added after a table was first released: {table: {column: ALTER statement}}.
+# create_all() only creates missing tables, so older databases get these on startup.
+# Every statement is a literal: no SQL is built from strings anywhere in YOUtopia.
 ADDED_COLUMNS = {
     "skilllevel": {
-        "recent_declines": "INTEGER NOT NULL DEFAULT 0",
-        "recent_misses": "INTEGER NOT NULL DEFAULT 0",
-        "last_evaluated": "DATE",
+        "recent_declines": (
+            "ALTER TABLE skilllevel ADD COLUMN recent_declines INTEGER NOT NULL DEFAULT 0"
+        ),
+        "recent_misses": (
+            "ALTER TABLE skilllevel ADD COLUMN recent_misses INTEGER NOT NULL DEFAULT 0"
+        ),
+        "last_evaluated": "ALTER TABLE skilllevel ADD COLUMN last_evaluated DATE",
     },
     "task": {
-        "source": "VARCHAR NOT NULL DEFAULT 'TEMPLATE'",  # enum values are stored by name
-        "declined_at": "DATETIME",
-        "problem": "JSON",
+        # Enum values are stored by name.
+        "source": "ALTER TABLE task ADD COLUMN source VARCHAR NOT NULL DEFAULT 'TEMPLATE'",
+        "declined_at": "ALTER TABLE task ADD COLUMN declined_at DATETIME",
+        "problem": "ALTER TABLE task ADD COLUMN problem JSON",
     },
 }
+RENAME_DOMAIN_STATEMENTS = (
+    "UPDATE task SET domain = :new WHERE domain = :old",
+    "UPDATE skilllevel SET domain = :new WHERE domain = :old",
+)
 
 
 def data_dir() -> Path:
@@ -44,9 +57,25 @@ def db_path() -> Path:
     return data_dir() / DB_FILENAME
 
 
+def ensure_private_dir(path: Path) -> Path:
+    """Create the data folder readable only by you (0700), tightening an existing one."""
+    path.mkdir(mode=DIR_MODE, parents=True, exist_ok=True)
+    os.chmod(path, DIR_MODE)
+    return path
+
+
+def ensure_private_file(path: Path) -> Path:
+    """Create a file readable only by you (0600), tightening an existing one."""
+    if not path.exists():
+        os.close(os.open(path, os.O_WRONLY | os.O_CREAT, FILE_MODE))
+    os.chmod(path, FILE_MODE)
+    return path
+
+
 @cache
 def _engine_for(path: Path) -> Engine:
-    path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_private_dir(path.parent)
+    ensure_private_file(path)  # SQLite gives its journal files the database's permissions
     engine = create_engine(f"sqlite:///{path}")
     SQLModel.metadata.create_all(engine)
     _add_missing_columns(engine)
@@ -59,22 +88,18 @@ def _add_missing_columns(engine: Engine) -> None:
     with engine.begin() as conn:
         for table, columns in ADDED_COLUMNS.items():
             existing = {c["name"] for c in inspector.get_columns(table)}
-            for name, definition in columns.items():
+            for name, statement in columns.items():
                 if name not in existing:
-                    # Names and definitions are the constants above, never user input.
-                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {definition}"))
+                    conn.execute(text(statement))
 
 
 def _rename_domains(engine: Engine) -> None:
     """Move stored data from the old area names to the current ones. Safe to rerun."""
     renames = {old.upper(): new.name for old, new in models.LEGACY_DOMAIN_NAMES.items()}
     with engine.begin() as conn:
-        for table in ("task", "skilllevel"):
+        for statement in RENAME_DOMAIN_STATEMENTS:
             for old, new in renames.items():
-                conn.execute(
-                    text(f"UPDATE {table} SET domain = :new WHERE domain = :old"),
-                    {"new": new, "old": old},
-                )
+                conn.execute(text(statement), {"new": new, "old": old})
         for profile_id, raw in conn.execute(text("SELECT id, interests FROM profile")).all():
             interests = json.loads(raw)
             updated = [

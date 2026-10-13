@@ -6,7 +6,7 @@ import tomllib
 from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 
-from youtopia.db import data_dir
+from youtopia.db import FILE_MODE, data_dir, ensure_private_dir
 from youtopia.providers.base import ProviderError, check_url
 from youtopia.providers.catalog import PROVIDERS, provider_names
 
@@ -73,11 +73,12 @@ def set_value(key: str, raw: str, path: Path | None = None) -> Config:
 
 def save_config(config: Config, path: Path | None = None) -> None:
     path = path or config_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_private_dir(path.parent)
     lines = ["[ai]"] + [f"{name} = {_toml_value(v)}" for name, v in asdict(config.ai).items()]
-    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, FILE_MODE)
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+    os.chmod(path, FILE_MODE)  # O_CREAT's mode only applies to new files
 
 
 def _parse(name: str, raw: str) -> object:
