@@ -15,6 +15,18 @@ from youtopia.providers import registry
 runner = CliRunner()
 KEY = "sk-live-NEVER-SHOW-0123456789wxyz"
 
+# A valid problem for AI fixtures: add two numbers.
+PROBLEM = {
+    "function": "add_up",
+    "signature": "def add_up(a: int, b: int) -> int:",
+    "compare": "exact",
+    "tests": [
+        {"args": [1, 2], "expected": 3},
+        {"args": [0, 0], "expected": 0},
+        {"args": [-4, 9], "expected": 5},
+    ],
+}
+
 GOOD_TASKS = {
     "tasks": [
         {
@@ -22,9 +34,10 @@ GOOD_TASKS = {
             "domain": domain,
             "difficulty": 2,
             "duration_minutes": 10,
-            "instructions": "Do a small, specific, safe thing for ten minutes.",
-            "done_criteria": "It is done.",
+            "instructions": "Add the two numbers.\n\nExample 1:\n  add_up(1, 2) -> 3",
+            "done_criteria": "All hidden tests pass.",
             "requires": [],
+            **PROBLEM,
         }
         for i, domain in enumerate([d.value for d in Domain])
     ]

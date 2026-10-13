@@ -1,664 +1,1704 @@
 # Built-in task library, used offline and whenever AI generation is unavailable.
 #
+# Every task is a LeetCode-style problem themed on its area: a statement with
+# examples and constraints, a function to write, and hidden tests that
+# `youtopia submit` runs against the user's solution. tests/reference_solutions.py
+# has a reference for each one, and tests/test_templates.py checks every test case
+# against it, so the expected values here are known to be right.
+#
 # Every task must be safe: nothing physically, legally or financially risky.
-# `requires` lists abilities or conditions the task depends on. A task is skipped
-# when the user's accessibility limits rule one out. Known tags:
-#   standing, walking, kneeling, lifting, exertion, hands, vision, hearing, speaking, going_out
+# `requires` lists abilities a task depends on (see LIMIT_PATTERNS in generator.py).
 
-# --- labour -----------------------------------------------------------------
-- title: Shoulder and neck reset
+# --- labour --------------------------------------------------------------------
+- title: Longest warm-up streak
   domain: labour
   difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Sitting or standing, roll your shoulders slowly ten times backwards and ten
-    times forwards, then tilt your head gently towards each shoulder for five breaths.
-    Stop any movement that feels uncomfortable.
-  done_criteria: You finished one full round of rolls and tilts.
-
-- title: Five-minute stroll
-  domain: labour
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Walk at an easy pace for five minutes, indoors or out. Notice three things you
-    hadn't noticed before.
-  done_criteria: You walked for five minutes and can name three things you noticed.
-  requires: [walking]
-
-- title: Seated strength set
-  domain: labour
-  difficulty: 2
   duration_minutes: 10
-  instructions: >-
-    In a sturdy chair, do two rounds of: ten arm raises (holding a water bottle if
-    you like), ten seated knee lifts per leg, and ten seated torso twists.
-  done_criteria: You completed two rounds.
+  instructions: |-
+    Your timesheet marks each day 1 if you warmed up and 0 if you didn't. Return the length of the longest run of consecutive 1s.
 
-- title: Walk around the block
+    Example 1:
+      longest_streak([1, 1, 0, 1, 1, 1]) -> 3
+    Example 2:
+      longest_streak([0, 0]) -> 0
+
+    Constraints: 0 <= len(days) <= 10^5; each day is 0 or 1.
+  done_criteria: All hidden tests pass.
+  function: longest_streak
+  signature: 'def longest_streak(days: list[int]) -> int:'
+  tests:
+    - {args: [[1, 1, 0, 1, 1, 1]], expected: 3}
+    - {args: [[0, 0]], expected: 0}
+    - {args: [[]], expected: 0}
+    - {args: [[1]], expected: 1}
+    - {args: [[1, 0, 1, 0, 1]], expected: 1}
+    - {args: [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], expected: 50}
+
+- title: Move the empty pallets
+  domain: labour
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    A loading bay is a row of slots: 0 is an empty pallet, any other number is a full one. Return a new list with every empty pallet moved to the end, keeping the full ones in their original order.
+
+    Example 1:
+      move_empty_pallets([0, 1, 0, 3, 12]) -> [1, 3, 12, 0, 0]
+    Example 2:
+      move_empty_pallets([0]) -> [0]
+
+    Constraints: 0 <= len(slots) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: move_empty_pallets
+  signature: 'def move_empty_pallets(slots: list[int]) -> list[int]:'
+  tests:
+    - {args: [[0, 1, 0, 3, 12]], expected: [1, 3, 12, 0, 0]}
+    - {args: [[0]], expected: [0]}
+    - {args: [[]], expected: []}
+    - {args: [[4, 5, 6]], expected: [4, 5, 6]}
+    - {args: [[0, 0, 7]], expected: [7, 0, 0]}
+    - {args: [[9, 0, 0, 0, 2, 0, 1]], expected: [9, 2, 1, 0, 0, 0, 0]}
+
+- title: Balance the barrow
   domain: labour
   difficulty: 2
   duration_minutes: 15
-  instructions: >-
-    Head out for a fifteen-minute walk on a familiar, safe route. Keep a pace where
-    you could still hold a conversation.
-  done_criteria: You were out walking for fifteen minutes.
-  requires: [walking, going_out]
+  instructions: |-
+    Bricks sit along a plank. Return the leftmost index where the total weight strictly to the left equals the total weight strictly to the right, or -1 if there is none. An empty side weighs 0.
 
-- title: Kitchen-counter circuit
+    Example 1:
+      balance_point([1, 7, 3, 6, 5, 6]) -> 3
+    Example 2:
+      balance_point([1, 2, 3]) -> -1
+
+    Constraints: 1 <= len(weights) <= 10^4; -1000 <= weights[i] <= 1000.
+  done_criteria: All hidden tests pass.
+  function: balance_point
+  signature: 'def balance_point(weights: list[int]) -> int:'
+  tests:
+    - {args: [[1, 7, 3, 6, 5, 6]], expected: 3}
+    - {args: [[1, 2, 3]], expected: -1}
+    - {args: [[2, 1, -1]], expected: 0}
+    - {args: [[0]], expected: 0}
+    - {args: [[1, -1, 4]], expected: 2}
+    - {args: [[-1, -1, 0, 1, 1, 0]], expected: 5}
+
+- title: Rotate the shift
   domain: labour
-  difficulty: 3
-  duration_minutes: 15
-  instructions: >-
-    Do three rounds of: ten wall or counter push-ups, ten sit-to-stands from a chair,
-    and fifteen calf raises holding the counter for balance. Rest a minute between rounds.
-  done_criteria: Three rounds done.
-  requires: [standing, exertion]
-
-- title: Gentle follow-along stretch
-  domain: labour
-  difficulty: 3
-  duration_minutes: 20
-  instructions: >-
-    Find a free beginner or chair-based stretching or yoga session (video or audio)
-    of about twenty minutes and follow it through. Skip any pose that doesn't suit your body.
-  done_criteria: You followed the session to the end.
-
-- title: Brisk walk with intervals
-  domain: labour
-  difficulty: 4
-  duration_minutes: 25
-  instructions: >-
-    Walk for twenty-five minutes, alternating two minutes at an easy pace with one
-    minute noticeably quicker. Stay on paths you know well.
-  done_criteria: You completed twenty-five minutes with at least five quicker intervals.
-  requires: [walking, going_out, exertion]
-
-- title: Design your own mobility routine
-  domain: labour
-  difficulty: 4
-  duration_minutes: 20
-  instructions: >-
-    Choose eight gentle movements that suit your body (stretches, rolls, reaches,
-    twists), write them down in order, and do the routine twice.
-  done_criteria: Your routine is written down and you did it twice.
-
-- title: Thirty-minute workout of your choice
-  domain: labour
-  difficulty: 5
-  duration_minutes: 30
-  instructions: >-
-    Do thirty minutes of an activity you enjoy (dance, a workout video, cycling,
-    swimming), at an effort you already know is safe for you.
-  done_criteria: You kept moving for thirty minutes.
-  requires: [exertion]
-
-- title: Active outing
-  domain: labour
-  difficulty: 5
-  duration_minutes: 45
-  instructions: >-
-    Plan and take a forty-five-minute walk to somewhere you rarely go: a park, a
-    market, a viewpoint. Bring water and keep to public paths.
-  done_criteria: You reached your destination and made it home.
-  requires: [walking, going_out, exertion]
-
-# --- production -------------------------------------------------------------
-- title: Draw the nearest object
-  domain: production
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Pick the closest object to you and draw it in five minutes. Wobbly lines count.
-  done_criteria: One drawing exists.
-  requires: [hands, vision]
-
-- title: Six-word story
-  domain: production
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Write or record a complete story in exactly six words. Make three attempts and
-    pick your favourite.
-  done_criteria: You have a favourite six-word story.
-
-- title: Haiku about today
-  domain: production
-  difficulty: 2
-  duration_minutes: 10
-  instructions: >-
-    Write a haiku (five, seven, then five syllables) about something that happened today.
-  done_criteria: Your haiku is written or recorded.
-
-- title: Three textures
-  domain: production
-  difficulty: 2
-  duration_minutes: 10
-  instructions: >-
-    Photograph three interesting textures around you: rough, smooth and something
-    in between. Frame each one carefully.
-  done_criteria: You have three texture photos you're happy with.
-  requires: [vision]
-
-- title: One-page story
-  domain: production
-  difficulty: 3
-  duration_minutes: 25
-  instructions: >-
-    Write a story of about one page that starts with the line "Nobody expected the
-    kettle to answer." Give it a clear ending.
-  done_criteria: The story has a beginning, a middle and an end.
-
-- title: A playlist that tells a story
-  domain: production
-  difficulty: 3
-  duration_minutes: 20
-  instructions: >-
-    Build a playlist of six to eight songs that tells a story from first track to
-    last. Give it a title.
-  done_criteria: Your playlist is titled and in order.
-  requires: [hearing]
-
-- title: One scene, three ways
-  domain: production
-  difficulty: 4
-  duration_minutes: 30
-  instructions: >-
-    Sketch the same scene three times: in pencil detail, in five bold lines, and
-    from memory with your eyes closed.
-  done_criteria: You have three versions of the scene.
-  requires: [hands, vision]
-
-- title: New words to an old tune
-  domain: production
-  difficulty: 4
-  duration_minutes: 25
-  instructions: >-
-    Pick a tune everyone knows and write two new verses for it about something in
-    your life this week.
-  done_criteria: Two verses that fit the tune.
-
-- title: Make a mini zine
-  domain: production
-  difficulty: 5
-  duration_minutes: 45
-  instructions: >-
-    Fold one sheet of paper into an eight-page mini zine and fill every page with
-    drawings or words on a single theme.
-  done_criteria: All eight pages are filled.
-  requires: [hands, vision]
-
-- title: Twist-ending short story
-  domain: production
-  difficulty: 5
-  duration_minutes: 45
-  instructions: >-
-    Write a short story of about a thousand words with an ending that reframes
-    everything before it. Read it back once and revise.
-  done_criteria: A revised story with a twist.
-
-# --- chores ------------------------------------------------------------------
-- title: Clear one surface
-  domain: chores
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Choose one surface (a table, shelf or bedside) and clear it completely, putting
-    each item back where it belongs.
-  done_criteria: The surface is clear.
-
-- title: Digital tidy
-  domain: chores
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Delete or archive twenty old emails, screenshots or photos you no longer need.
-  done_criteria: Twenty items gone.
-
-- title: Plan tomorrow's meals
-  domain: chores
-  difficulty: 2
-  duration_minutes: 10
-  instructions: >-
-    Decide what you'll eat tomorrow and check you have the ingredients. Note anything
-    you need to pick up.
-  done_criteria: Tomorrow's meals are decided.
-
-- title: Sort one drawer
-  domain: chores
   difficulty: 2
   duration_minutes: 15
-  instructions: >-
-    Empty one drawer, wipe it out, and put back only what belongs there.
-  done_criteria: The drawer is sorted.
-  requires: [hands]
+  instructions: |-
+    The crew rota rotates to the right by k places each week: the last k names move to the front. Return the rotated rota as a new list.
 
-- title: Cupboard cook-up
-  domain: chores
-  difficulty: 3
-  duration_minutes: 30
-  instructions: >-
-    Cook a dish you haven't made before using only what's already in your kitchen.
-    Look up a recipe if you like.
-  done_criteria: You cooked and tasted something new.
-  requires: [standing, hands]
+    Example 1:
+      rotate_shift(['ana', 'bo', 'cy', 'dee', 'eli'], 2) -> ['dee', 'eli', 'ana', 'bo', 'cy']
+    Example 2:
+      rotate_shift(['ana', 'bo'], 3) -> ['bo', 'ana']
 
-- title: Mend one small thing
-  domain: chores
-  difficulty: 3
-  duration_minutes: 20
-  instructions: >-
-    Fix something small that's been bugging you: sew on a button, tighten a loose
-    cupboard handle, glue a chipped ornament. Nothing electrical or gas-related.
-  done_criteria: The thing is fixed.
-  requires: [hands]
+    Constraints: 0 <= len(crew) <= 10^4; 0 <= k <= 10^9.
+  done_criteria: All hidden tests pass.
+  function: rotate_shift
+  signature: 'def rotate_shift(crew: list[str], k: int) -> list[str]:'
+  tests:
+    - {args: [["ana", "bo", "cy", "dee", "eli"], 2], expected: ["dee", "eli", "ana", "bo", "cy"]}
+    - {args: [["ana", "bo"], 3], expected: ["bo", "ana"]}
+    - {args: [[], 4], expected: []}
+    - {args: [["solo"], 7], expected: ["solo"]}
+    - {args: [["a", "b", "c"], 0], expected: ["a", "b", "c"]}
+    - {args: [["a", "b", "c", "d"], 4], expected: ["a", "b", "c", "d"]}
 
-- title: Spending snapshot
-  domain: chores
-  difficulty: 4
-  duration_minutes: 30
-  instructions: >-
-    List your regular monthly costs and subscriptions in one place. Mark any you'd
-    like to look into later. No decisions needed today.
-  done_criteria: Your list of regular costs is complete.
-
-- title: Deep clean one zone
-  domain: chores
-  difficulty: 4
-  duration_minutes: 30
-  instructions: >-
-    Pick one zone (the fridge, the bathroom sink, the hallway) and clean it
-    thoroughly from top to bottom.
-  done_criteria: The zone is properly clean.
-  requires: [standing]
-
-- title: Batch cook
-  domain: chores
-  difficulty: 5
-  duration_minutes: 60
-  instructions: >-
-    Cook a dish that makes at least three portions and store the extras for the
-    coming days.
-  done_criteria: Three or more portions are cooked and stored.
-  requires: [standing, hands]
-
-- title: Household info sheet
-  domain: chores
-  difficulty: 5
-  duration_minutes: 40
-  instructions: >-
-    Write one page of household essentials: key contacts, where the water stop tap
-    and fuse box are, bin days, and who to call for repairs.
-  done_criteria: The sheet is written and somewhere easy to find.
-
-# --- outreach -------------------------------------------------------------
-- title: Send a thank-you
-  domain: outreach
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Send a short message thanking someone for something specific they did, recently
-    or long ago.
-  done_criteria: The message is sent.
-
-- title: A sincere compliment
-  domain: outreach
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Tell someone something you genuinely appreciate about them, in person or by message.
-  done_criteria: You gave the compliment.
-
-- title: Voice hello
-  domain: outreach
-  difficulty: 2
-  duration_minutes: 10
-  instructions: >-
-    Call or send a voice message to a friend or relative just to say hello and ask
-    how they are.
-  done_criteria: You spoke or left a message.
-  requires: [speaking, hearing]
-
-- title: Share a recommendation
-  domain: outreach
-  difficulty: 2
-  duration_minutes: 10
-  instructions: >-
-    Recommend a book, song, show or recipe to someone who'd enjoy it, and say why
-    you thought of them.
-  done_criteria: The recommendation is sent.
-
-- title: Ask for a story
-  domain: outreach
+- title: Heaviest stretch of loads
+  domain: labour
   difficulty: 3
   duration_minutes: 20
-  instructions: >-
-    Ask someone about a memorable moment in their life and really listen. Ask at
-    least two follow-up questions.
-  done_criteria: You heard the story and asked two follow-ups.
+  instructions: |-
+    Given the weight of each load in order and a shift length k, return the largest total weight carried across any k consecutive loads.
 
-- title: Write a real letter
-  domain: outreach
+    Example 1:
+      max_load_window([1, 12, -5, -6, 50, 3], 4) -> 51
+    Example 2:
+      max_load_window([5], 1) -> 5
+
+    Constraints: 1 <= k <= len(loads) <= 10^5; -10^4 <= loads[i] <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: max_load_window
+  signature: 'def max_load_window(loads: list[int], k: int) -> int:'
+  tests:
+    - {args: [[1, 12, -5, -6, 50, 3], 4], expected: 51}
+    - {args: [[5], 1], expected: 5}
+    - {args: [[-1, -2, -3], 2], expected: -3}
+    - {args: [[2, 2, 2, 2], 4], expected: 8}
+    - {args: [[3, -1, 4, -1, 5, -9, 2, 6], 3], expected: 8}
+    - {args: [[0, 0, 7, 0], 1], expected: 7}
+
+- title: Merge the shifts
+  domain: labour
   difficulty: 3
-  duration_minutes: 20
-  instructions: >-
-    Handwrite a letter or card to someone and post or deliver it.
-  done_criteria: The letter is on its way.
-  requires: [hands]
-
-- title: Plan a get-together
-  domain: outreach
-  difficulty: 4
   duration_minutes: 25
-  instructions: >-
-    Invite one or more people to a simple get-together (coffee, a walk, a video
-    call) and agree a date.
-  done_criteria: A date is set.
+  instructions: |-
+    Each shift is [start, end]. Merge every group of overlapping shifts (touching counts as overlapping) and return the merged shifts sorted by start time.
 
-- title: Join a group conversation
+    Example 1:
+      merge_shifts([[1, 3], [2, 6], [8, 10], [15, 18]]) -> [[1, 6], [8, 10], [15, 18]]
+    Example 2:
+      merge_shifts([[1, 4], [4, 5]]) -> [[1, 5]]
+
+    Constraints: 1 <= len(shifts) <= 10^4; 0 <= start <= end <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: merge_shifts
+  signature: 'def merge_shifts(shifts: list[list[int]]) -> list[list[int]]:'
+  tests:
+    - {args: [[[1, 3], [2, 6], [8, 10], [15, 18]]], expected: [[1, 6], [8, 10], [15, 18]]}
+    - {args: [[[1, 4], [4, 5]]], expected: [[1, 5]]}
+    - {args: [[[5, 7]]], expected: [[5, 7]]}
+    - {args: [[[6, 8], [1, 9], [2, 4]]], expected: [[1, 9]]}
+    - {args: [[[1, 2], [3, 4]]], expected: [[1, 2], [3, 4]]}
+    - {args: [[[2, 3], [1, 2], [5, 5], [4, 6]]], expected: [[1, 3], [4, 6]]}
+
+- title: Fewest trips with the trolley
+  domain: labour
+  difficulty: 4
+  duration_minutes: 30
+  instructions: |-
+    A trolley carries at most two crates per trip, and their total weight can't exceed limit. Return the fewest trips needed to move every crate.
+
+    Example 1:
+      min_trips([3, 2, 2, 1], 3) -> 3
+    Example 2:
+      min_trips([1, 2], 3) -> 1
+
+    Constraints: 1 <= len(crates) <= 5 * 10^4; 1 <= crates[i] <= limit <= 3 * 10^4.
+  done_criteria: All hidden tests pass.
+  function: min_trips
+  signature: 'def min_trips(crates: list[int], limit: int) -> int:'
+  tests:
+    - {args: [[3, 2, 2, 1], 3], expected: 3}
+    - {args: [[1, 2], 3], expected: 1}
+    - {args: [[3, 5, 3, 4], 5], expected: 4}
+    - {args: [[5], 5], expected: 1}
+    - {args: [[1, 1, 1, 1, 1], 2], expected: 3}
+    - {args: [[2, 4, 6, 8, 10, 3], 11], expected: 4}
+
+- title: Cover the trail
+  domain: labour
+  difficulty: 4
+  duration_minutes: 30
+  instructions: |-
+    A trail has n markers. Each move takes you forward 1, 2 or 3 markers. Return how many different move sequences take you from the start to exactly marker n.
+
+    Example 1:
+      ways_to_cover(4) -> 7
+    Example 2:
+      ways_to_cover(1) -> 1
+
+    Constraints: 0 <= n <= 35.
+  done_criteria: All hidden tests pass.
+  function: ways_to_cover
+  signature: 'def ways_to_cover(n: int) -> int:'
+  tests:
+    - {args: [4], expected: 7}
+    - {args: [1], expected: 1}
+    - {args: [0], expected: 1}
+    - {args: [3], expected: 4}
+    - {args: [10], expected: 274}
+    - {args: [35], expected: 1132436852}
+
+- title: Puddles in the yard
+  domain: labour
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    A row of paving stones has the given heights, each one unit wide. After rain, water settles between taller stones. Return how many units of water the yard holds.
+
+    Example 1:
+      yard_puddles([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]) -> 6
+    Example 2:
+      yard_puddles([4, 2, 0, 3, 2, 5]) -> 9
+
+    Constraints: 0 <= len(heights) <= 2 * 10^4; 0 <= heights[i] <= 10^5.
+  done_criteria: All hidden tests pass.
+  function: yard_puddles
+  signature: 'def yard_puddles(heights: list[int]) -> int:'
+  tests:
+    - {args: [[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]], expected: 6}
+    - {args: [[4, 2, 0, 3, 2, 5]], expected: 9}
+    - {args: [[]], expected: 0}
+    - {args: [[3]], expected: 0}
+    - {args: [[5, 4, 3, 2, 1]], expected: 0}
+    - {args: [[2, 0, 2, 0, 2]], expected: 4}
+
+- title: Biggest banner on the boards
+  domain: labour
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    A row of upright boards, each 1 wide, has the given heights. Return the area of the largest rectangular banner that fits flat against consecutive boards without going above any of them.
+
+    Example 1:
+      biggest_banner([2, 1, 5, 6, 2, 3]) -> 10
+    Example 2:
+      biggest_banner([2, 4]) -> 4
+
+    Constraints: 1 <= len(boards) <= 10^5; 0 <= boards[i] <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: biggest_banner
+  signature: 'def biggest_banner(boards: list[int]) -> int:'
+  tests:
+    - {args: [[2, 1, 5, 6, 2, 3]], expected: 10}
+    - {args: [[2, 4]], expected: 4}
+    - {args: [[0]], expected: 0}
+    - {args: [[3, 3, 3]], expected: 9}
+    - {args: [[6, 2, 5, 4, 5, 1, 6]], expected: 12}
+    - {args: [[1, 2, 3, 4, 5]], expected: 9}
+
+
+# --- production ----------------------------------------------------------------
+- title: Count the words
+  domain: production
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    Return how many words the draft contains. Words are separated by any amount of whitespace.
+
+    Example 1:
+      word_count('Hello world') -> 2
+    Example 2:
+      word_count('   ') -> 0
+
+    Constraints: 0 <= len(text) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: word_count
+  signature: 'def word_count(text: str) -> int:'
+  tests:
+    - {args: ["Hello world"], expected: 2}
+    - {args: ["   "], expected: 0}
+    - {args: [""], expected: 0}
+    - {args: ["one"], expected: 1}
+    - {args: ["  lots   of\tspace \n here "], expected: 4}
+    - {args: ["a b c d e f"], expected: 6}
+
+- title: Reverse the title
+  domain: production
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    Return the title with its words in reverse order, separated by single spaces, with no leading or trailing spaces.
+
+    Example 1:
+      reverse_title('the sky is blue') -> 'blue is sky the'
+    Example 2:
+      reverse_title('  hello world  ') -> 'world hello'
+
+    Constraints: 1 <= len(title) <= 10^4; the title contains at least one word.
+  done_criteria: All hidden tests pass.
+  function: reverse_title
+  signature: 'def reverse_title(title: str) -> str:'
+  tests:
+    - {args: ["the sky is blue"], expected: "blue is sky the"}
+    - {args: ["  hello world  "], expected: "world hello"}
+    - {args: ["solo"], expected: "solo"}
+    - {args: ["a good   example"], expected: "example good a"}
+    - {args: ["Production Line Two"], expected: "Two Line Production"}
+    - {args: ["x y"], expected: "y x"}
+
+- title: Mirror headline
+  domain: production
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    Return True if the headline reads the same forwards and backwards once you ignore case and keep only letters and digits.
+
+    Example 1:
+      is_palindrome_line('A man, a plan, a canal: Panama') -> True
+    Example 2:
+      is_palindrome_line('race a car') -> False
+
+    Constraints: 0 <= len(line) <= 2 * 10^5.
+  done_criteria: All hidden tests pass.
+  function: is_palindrome_line
+  signature: 'def is_palindrome_line(line: str) -> bool:'
+  tests:
+    - {args: ["A man, a plan, a canal: Panama"], expected: true}
+    - {args: ["race a car"], expected: false}
+    - {args: [" "], expected: true}
+    - {args: ["No lemon, no melon"], expected: true}
+    - {args: ["0P"], expected: false}
+    - {args: ["Was it a car or a cat I saw?"], expected: true}
+
+- title: Remix check
+  domain: production
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    Return True if draft b uses exactly the same characters as draft a, the same number of times each, in any order (case-sensitive).
+
+    Example 1:
+      is_remix('listen', 'silent') -> True
+    Example 2:
+      is_remix('rat', 'car') -> False
+
+    Constraints: 0 <= len(a), len(b) <= 5 * 10^4.
+  done_criteria: All hidden tests pass.
+  function: is_remix
+  signature: 'def is_remix(a: str, b: str) -> bool:'
+  tests:
+    - {args: ["listen", "silent"], expected: true}
+    - {args: ["rat", "car"], expected: false}
+    - {args: ["", ""], expected: true}
+    - {args: ["aab", "abb"], expected: false}
+    - {args: ["Dusty", "study"], expected: false}
+    - {args: ["night", "thing"], expected: true}
+
+- title: Longest fresh run
+  domain: production
+  difficulty: 3
+  duration_minutes: 20
+  instructions: |-
+    Return the length of the longest stretch of the draft with no repeated character.
+
+    Example 1:
+      longest_fresh_run('abcabcbb') -> 3
+    Example 2:
+      longest_fresh_run('bbbbb') -> 1
+
+    Constraints: 0 <= len(draft) <= 5 * 10^4.
+  done_criteria: All hidden tests pass.
+  function: longest_fresh_run
+  signature: 'def longest_fresh_run(draft: str) -> int:'
+  tests:
+    - {args: ["abcabcbb"], expected: 3}
+    - {args: ["bbbbb"], expected: 1}
+    - {args: ["pwwkew"], expected: 3}
+    - {args: [""], expected: 0}
+    - {args: ["dvdf"], expected: 3}
+    - {args: ["abba"], expected: 2}
+
+- title: Compress the draft
+  domain: production
+  difficulty: 3
+  duration_minutes: 20
+  instructions: |-
+    Replace each run of the same character with the character followed by the run length, even when the run is 1 long.
+
+    Example 1:
+      compress_draft('aaabcc') -> 'a3b1c2'
+    Example 2:
+      compress_draft('abc') -> 'a1b1c1'
+
+    Constraints: 0 <= len(text) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: compress_draft
+  signature: 'def compress_draft(text: str) -> str:'
+  tests:
+    - {args: ["aaabcc"], expected: "a3b1c2"}
+    - {args: ["abc"], expected: "a1b1c1"}
+    - {args: [""], expected: ""}
+    - {args: ["zzzzzzzzzzzz"], expected: "z12"}
+    - {args: ["aabbaa"], expected: "a2b2a2"}
+    - {args: ["x"], expected: "x1"}
+
+- title: Wrap the copy
+  domain: production
+  difficulty: 4
+  duration_minutes: 35
+  instructions: |-
+    Lay out the words greedily: put as many words as fit on each line (joined by single spaces, length at most width), then start a new line. Return the lines.
+
+    Example 1:
+      wrap_words(['This', 'is', 'an', 'example', 'of', 'text'], 16) -> ['This is an', 'example of text']
+    Example 2:
+      wrap_words(['one'], 3) -> ['one']
+
+    Constraints: 0 <= len(words) <= 10^3; 1 <= len(word) <= width <= 100.
+  done_criteria: All hidden tests pass.
+  function: wrap_words
+  signature: 'def wrap_words(words: list[str], width: int) -> list[str]:'
+  tests:
+    - {args: [["This", "is", "an", "example", "of", "text"], 16], expected: ["This is an", "example of text"]}
+    - {args: [["one"], 3], expected: ["one"]}
+    - {args: [[], 10], expected: []}
+    - {args: [["a", "b", "c"], 1], expected: ["a", "b", "c"]}
+    - {args: [["a", "bb", "ccc", "dd"], 6], expected: ["a bb", "ccc dd"]}
+    - {args: [["wrap", "me", "up"], 7], expected: ["wrap me", "up"]}
+
+- title: Longest mirror passage
+  domain: production
+  difficulty: 4
+  duration_minutes: 30
+  instructions: |-
+    Return the longest stretch of the text that reads the same forwards and backwards. If several are equally long, return the one that starts first.
+
+    Example 1:
+      longest_mirror('babad') -> 'bab'
+    Example 2:
+      longest_mirror('cbbd') -> 'bb'
+
+    Constraints: 1 <= len(text) <= 1000.
+  done_criteria: All hidden tests pass.
+  function: longest_mirror
+  signature: 'def longest_mirror(text: str) -> str:'
+  tests:
+    - {args: ["babad"], expected: "bab"}
+    - {args: ["cbbd"], expected: "bb"}
+    - {args: ["a"], expected: "a"}
+    - {args: ["ac"], expected: "a"}
+    - {args: ["forgeeksskeegfor"], expected: "geeksskeeg"}
+    - {args: ["abacdfgdcaba"], expected: "aba"}
+
+- title: Edit distance between drafts
+  domain: production
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    Return the fewest single-character insertions, deletions or replacements that turn draft a into draft b.
+
+    Example 1:
+      edit_distance('horse', 'ros') -> 3
+    Example 2:
+      edit_distance('intention', 'execution') -> 5
+
+    Constraints: 0 <= len(a), len(b) <= 500.
+  done_criteria: All hidden tests pass.
+  function: edit_distance
+  signature: 'def edit_distance(a: str, b: str) -> int:'
+  tests:
+    - {args: ["horse", "ros"], expected: 3}
+    - {args: ["intention", "execution"], expected: 5}
+    - {args: ["", ""], expected: 0}
+    - {args: ["", "abc"], expected: 3}
+    - {args: ["same", "same"], expected: 0}
+    - {args: ["kitten", "sitting"], expected: 3}
+
+- title: Shortest excerpt
+  domain: production
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    Return the shortest stretch of text that contains every character of letters (including repeats). If several are equally short, return the one that ends first. Return an empty string if there is none.
+
+    Example 1:
+      shortest_excerpt('ADOBECODEBANC', 'ABC') -> 'BANC'
+    Example 2:
+      shortest_excerpt('a', 'a') -> 'a'
+
+    Constraints: 1 <= len(text), len(letters) <= 10^5.
+  done_criteria: All hidden tests pass.
+  function: shortest_excerpt
+  signature: 'def shortest_excerpt(text: str, letters: str) -> str:'
+  tests:
+    - {args: ["ADOBECODEBANC", "ABC"], expected: "BANC"}
+    - {args: ["a", "a"], expected: "a"}
+    - {args: ["a", "aa"], expected: ""}
+    - {args: ["aa", "aa"], expected: "aa"}
+    - {args: ["xyzzy", "zy"], expected: "yz"}
+    - {args: ["thisisateststring", "tist"], expected: "tstri"}
+
+
+# --- chores --------------------------------------------------------------------
+- title: Pair the socks
+  domain: chores
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    Each sock is named by its colour. Return how many matching pairs you can make.
+
+    Example 1:
+      sock_pairs(['red', 'blue', 'red', 'green', 'blue', 'red']) -> 2
+    Example 2:
+      sock_pairs([]) -> 0
+
+    Constraints: 0 <= len(socks) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: sock_pairs
+  signature: 'def sock_pairs(socks: list[str]) -> int:'
+  tests:
+    - {args: [["red", "blue", "red", "green", "blue", "red"]], expected: 2}
+    - {args: [[]], expected: 0}
+    - {args: [["grey"]], expected: 0}
+    - {args: [["a", "a", "a", "a"]], expected: 2}
+    - {args: [["x", "y", "z"]], expected: 0}
+    - {args: [["b", "b", "c", "c", "c"]], expected: 2}
+
+- title: The missing spoon
+  domain: chores
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    The drawer should hold spoons numbered 0 to n, but there are only n spoons. Given their numbers in any order, return the missing number.
+
+    Example 1:
+      missing_spoon([3, 0, 1]) -> 2
+    Example 2:
+      missing_spoon([0, 1]) -> 2
+
+    Constraints: 1 <= n == len(spoons) <= 10^4; the numbers are distinct.
+  done_criteria: All hidden tests pass.
+  function: missing_spoon
+  signature: 'def missing_spoon(spoons: list[int]) -> int:'
+  tests:
+    - {args: [[3, 0, 1]], expected: 2}
+    - {args: [[0, 1]], expected: 2}
+    - {args: [[9, 6, 4, 2, 3, 5, 7, 0, 1]], expected: 8}
+    - {args: [[1]], expected: 0}
+    - {args: [[0]], expected: 1}
+    - {args: [[2, 0]], expected: 1}
+
+- title: Sort the laundry
+  domain: chores
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    Each item is 0 (whites), 1 (colours) or 2 (darks). Return the items grouped as all 0s, then 1s, then 2s. Try it in a single pass without a general sort.
+
+    Example 1:
+      sort_laundry([2, 0, 2, 1, 1, 0]) -> [0, 0, 1, 1, 2, 2]
+    Example 2:
+      sort_laundry([2, 0, 1]) -> [0, 1, 2]
+
+    Constraints: 0 <= len(loads) <= 300.
+  done_criteria: All hidden tests pass.
+  function: sort_laundry
+  signature: 'def sort_laundry(loads: list[int]) -> list[int]:'
+  tests:
+    - {args: [[2, 0, 2, 1, 1, 0]], expected: [0, 0, 1, 1, 2, 2]}
+    - {args: [[2, 0, 1]], expected: [0, 1, 2]}
+    - {args: [[]], expected: []}
+    - {args: [[1]], expected: [1]}
+    - {args: [[2, 2, 0, 0]], expected: [0, 0, 2, 2]}
+    - {args: [[1, 0, 1, 2, 0, 1]], expected: [0, 0, 1, 1, 1, 2]}
+
+- title: Put away twice
+  domain: chores
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    Scanning the tidy-up log from the start, return the first item that appears for the second time, or None if nothing repeats.
+
+    Example 1:
+      first_repeat(['cup', 'plate', 'fork', 'plate', 'cup']) -> 'plate'
+    Example 2:
+      first_repeat(['a', 'b', 'c']) -> None
+
+    Constraints: 0 <= len(items) <= 10^5.
+  done_criteria: All hidden tests pass.
+  function: first_repeat
+  signature: 'def first_repeat(items: list[str]) -> str | None:'
+  tests:
+    - {args: [["cup", "plate", "fork", "plate", "cup"]], expected: "plate"}
+    - {args: [["a", "b", "c"]], expected: null}
+    - {args: [[]], expected: null}
+    - {args: [["x", "x"]], expected: "x"}
+    - {args: [["a", "b", "b", "a"]], expected: "b"}
+    - {args: [["mug", "bowl", "lid", "mug"]], expected: "mug"}
+
+- title: Chore rota with cooldown
+  domain: chores
+  difficulty: 3
+  duration_minutes: 25
+  instructions: |-
+    Each chore takes one time slot. The same chore needs at least cooldown slots between repeats; you may rest in any slot. Return the fewest slots to finish every chore.
+
+    Example 1:
+      chore_rota(['A', 'A', 'A', 'B', 'B', 'B'], 2) -> 8
+    Example 2:
+      chore_rota(['A', 'A', 'A', 'B', 'B', 'B'], 0) -> 6
+
+    Constraints: 1 <= len(chores) <= 10^4; 0 <= cooldown <= 100.
+  done_criteria: All hidden tests pass.
+  function: chore_rota
+  signature: 'def chore_rota(chores: list[str], cooldown: int) -> int:'
+  tests:
+    - {args: [["A", "A", "A", "B", "B", "B"], 2], expected: 8}
+    - {args: [["A", "A", "A", "B", "B", "B"], 0], expected: 6}
+    - {args: [["A", "A", "A", "A", "A", "A", "B", "C", "D", "E", "F", "G"], 2], expected: 16}
+    - {args: [["A"], 5], expected: 1}
+    - {args: [["A", "B", "C", "A"], 3], expected: 5}
+    - {args: [["A", "A", "B", "B", "C", "C"], 1], expected: 6}
+
+- title: Washing machines needed
+  domain: chores
+  difficulty: 3
+  duration_minutes: 25
+  instructions: |-
+    Each load runs over [start, end) in minutes. A machine is free again at the minute its load ends. Return the fewest machines needed so no load waits.
+
+    Example 1:
+      machines_needed([[0, 30], [5, 10], [15, 20]]) -> 2
+    Example 2:
+      machines_needed([[7, 10], [2, 4]]) -> 1
+
+    Constraints: 1 <= len(loads) <= 10^4; 0 <= start < end <= 10^6.
+  done_criteria: All hidden tests pass.
+  function: machines_needed
+  signature: 'def machines_needed(loads: list[list[int]]) -> int:'
+  tests:
+    - {args: [[[0, 30], [5, 10], [15, 20]]], expected: 2}
+    - {args: [[[7, 10], [2, 4]]], expected: 1}
+    - {args: [[[1, 5]]], expected: 1}
+    - {args: [[[1, 5], [5, 10]]], expected: 1}
+    - {args: [[[1, 10], [2, 9], [3, 8]]], expected: 3}
+    - {args: [[[0, 5], [1, 2], [2, 3], [4, 6]]], expected: 2}
+
+- title: Messy rooms
+  domain: chores
+  difficulty: 4
+  duration_minutes: 30
+  instructions: |-
+    A floor plan uses '#' for a messy tile and '.' for a clean one. Messy tiles that touch up, down, left or right form one messy room. Return how many messy rooms there are.
+
+    Example 1:
+      messy_rooms(['##..#', '#...#', '..#..', '....#']) -> 4
+    Example 2:
+      messy_rooms(['#']) -> 1
+
+    Constraints: 1 <= rows, cols <= 300.
+  done_criteria: All hidden tests pass.
+  function: messy_rooms
+  signature: 'def messy_rooms(grid: list[str]) -> int:'
+  tests:
+    - {args: [["##..#", "#...#", "..#..", "....#"]], expected: 4}
+    - {args: [["#"]], expected: 1}
+    - {args: [["."]], expected: 0}
+    - {args: [["#.#", ".#.", "#.#"]], expected: 5}
+    - {args: [["###", "#.#", "###"]], expected: 1}
+    - {args: [["#..#", "....", "#..#"]], expected: 4}
+
+- title: Can the chores get done?
+  domain: chores
+  difficulty: 4
+  duration_minutes: 35
+  instructions: |-
+    Chores are numbered 0 to n-1. Each pair [a, b] means chore a must happen before chore b. Return True if some order finishes every chore.
+
+    Example 1:
+      can_finish_chores(2, [[1, 0]]) -> True
+    Example 2:
+      can_finish_chores(2, [[1, 0], [0, 1]]) -> False
+
+    Constraints: 1 <= n <= 2000; 0 <= len(before) <= 5000.
+  done_criteria: All hidden tests pass.
+  function: can_finish_chores
+  signature: 'def can_finish_chores(n: int, before: list[list[int]]) -> bool:'
+  tests:
+    - {args: [2, [[1, 0]]], expected: true}
+    - {args: [2, [[1, 0], [0, 1]]], expected: false}
+    - {args: [1, []], expected: true}
+    - {args: [3, [[0, 1], [1, 2], [2, 0]]], expected: false}
+    - {args: [4, [[0, 1], [0, 2], [1, 3], [2, 3]]], expected: true}
+    - {args: [5, [[1, 4], [2, 4], [3, 1], [3, 2]]], expected: true}
+
+- title: Spread the tidy
+  domain: chores
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    Each cell is 'T' (tidy), 'M' (messy) or '.' (empty). Every minute, each messy cell next to a tidy one (up, down, left, right) becomes tidy. Return the minutes until nothing is messy, or -1 if some mess can never be reached.
+
+    Example 1:
+      minutes_to_tidy(['TMM', 'MM.', '.MM']) -> 4
+    Example 2:
+      minutes_to_tidy(['TMM', '.MM', 'M.M']) -> -1
+
+    Constraints: 1 <= rows, cols <= 100.
+  done_criteria: All hidden tests pass.
+  function: minutes_to_tidy
+  signature: 'def minutes_to_tidy(grid: list[str]) -> int:'
+  tests:
+    - {args: [["TMM", "MM.", ".MM"]], expected: 4}
+    - {args: [["TMM", ".MM", "M.M"]], expected: -1}
+    - {args: [[".T"]], expected: 0}
+    - {args: [["M"]], expected: -1}
+    - {args: [["T.M"]], expected: -1}
+    - {args: [["TMMMT"]], expected: 2}
+
+- title: Fewest moves across the house
+  domain: chores
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    '.' is open floor and '#' is blocked. Moving up, down, left or right, return the fewest moves from the top-left cell to the bottom-right cell, or -1 if you can't get there.
+
+    Example 1:
+      fewest_moves(['..', '..']) -> 2
+    Example 2:
+      fewest_moves(['...', '##.', '...']) -> 4
+
+    Constraints: 1 <= rows, cols <= 100.
+  done_criteria: All hidden tests pass.
+  function: fewest_moves
+  signature: 'def fewest_moves(grid: list[str]) -> int:'
+  tests:
+    - {args: [["..", ".."]], expected: 2}
+    - {args: [["...", "##.", "..."]], expected: 4}
+    - {args: [["."]], expected: 0}
+    - {args: [[".#", "#."]], expected: -1}
+    - {args: [["....", ".##.", "...."]], expected: 5}
+    - {args: [["#.", ".."]], expected: -1}
+
+
+# --- outreach ------------------------------------------------------------------
+- title: Top sender
+  domain: outreach
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    Each entry is who sent a message. Return the person who sent the most; on a tie, the name that comes first alphabetically.
+
+    Example 1:
+      top_sender(['sam', 'ali', 'sam', 'kim']) -> 'sam'
+    Example 2:
+      top_sender(['zoe']) -> 'zoe'
+
+    Constraints: 1 <= len(senders) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: top_sender
+  signature: 'def top_sender(senders: list[str]) -> str:'
+  tests:
+    - {args: [["sam", "ali", "sam", "kim"]], expected: "sam"}
+    - {args: [["zoe"]], expected: "zoe"}
+    - {args: [["b", "a"]], expected: "a"}
+    - {args: [["x", "y", "y", "x", "z"]], expected: "x"}
+    - {args: [["ana", "ana", "bo", "bo", "bo"]], expected: "bo"}
+    - {args: [["q", "r", "s", "r"]], expected: "r"}
+
+- title: Tidy the contact list
+  domain: outreach
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    Return the contacts with duplicates removed, keeping each name where it first appears.
+
+    Example 1:
+      unique_contacts(['ana', 'bo', 'ana', 'cy', 'bo']) -> ['ana', 'bo', 'cy']
+    Example 2:
+      unique_contacts([]) -> []
+
+    Constraints: 0 <= len(contacts) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: unique_contacts
+  signature: 'def unique_contacts(contacts: list[str]) -> list[str]:'
+  tests:
+    - {args: [["ana", "bo", "ana", "cy", "bo"]], expected: ["ana", "bo", "cy"]}
+    - {args: [[]], expected: []}
+    - {args: [["solo"]], expected: ["solo"]}
+    - {args: [["a", "a", "a"]], expected: ["a"]}
+    - {args: [["Bo", "bo", "Bo"]], expected: ["Bo", "bo"]}
+    - {args: [["x", "y", "z"]], expected: ["x", "y", "z"]}
+
+- title: Balanced brackets
+  domain: outreach
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    Return True if every bracket in the message ((), [] and {}) is closed by the matching kind in the right order. Other characters don't matter.
+
+    Example 1:
+      balanced_brackets('see you (soon) [ok]') -> True
+    Example 2:
+      balanced_brackets('(]') -> False
+
+    Constraints: 0 <= len(message) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: balanced_brackets
+  signature: 'def balanced_brackets(message: str) -> bool:'
+  tests:
+    - {args: ["see you (soon) [ok]"], expected: true}
+    - {args: ["(]"], expected: false}
+    - {args: [""], expected: true}
+    - {args: ["{[()]}"], expected: true}
+    - {args: ["([)]"], expected: false}
+    - {args: ["((nested) smile"], expected: false}
+
+- title: Two friends free
+  domain: outreach
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    free[i] is how many minutes friend i is free. Exactly one pair of different friends adds up to target. Return their indices, smaller first.
+
+    Example 1:
+      free_pair([2, 7, 11, 15], 9) -> [0, 1]
+    Example 2:
+      free_pair([3, 2, 4], 6) -> [1, 2]
+
+    Constraints: 2 <= len(free) <= 10^4; exactly one answer exists.
+  done_criteria: All hidden tests pass.
+  function: free_pair
+  signature: 'def free_pair(free: list[int], target: int) -> list[int]:'
+  tests:
+    - {args: [[2, 7, 11, 15], 9], expected: [0, 1]}
+    - {args: [[3, 2, 4], 6], expected: [1, 2]}
+    - {args: [[3, 3], 6], expected: [0, 1]}
+    - {args: [[1, 5, 9, 14], 23], expected: [2, 3]}
+    - {args: [[-3, 4, 3, 90], 0], expected: [0, 2]}
+    - {args: [[10, 20, 30, 40, 50], 90], expected: [3, 4]}
+
+- title: Top k contacts
+  domain: outreach
+  difficulty: 3
+  duration_minutes: 25
+  instructions: |-
+    Return the k names you talk to most, most frequent first; ties go alphabetically.
+
+    Example 1:
+      top_contacts(['i', 'love', 'leetcode', 'i', 'love', 'coding'], 2) -> ['i', 'love']
+    Example 2:
+      top_contacts(['a'], 1) -> ['a']
+
+    Constraints: 1 <= k <= number of distinct names; 1 <= len(names) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: top_contacts
+  signature: 'def top_contacts(names: list[str], k: int) -> list[str]:'
+  tests:
+    - {args: [["i", "love", "leetcode", "i", "love", "coding"], 2], expected: ["i", "love"]}
+    - {args: [["a"], 1], expected: ["a"]}
+    - {args: [["b", "a", "c"], 3], expected: ["a", "b", "c"]}
+    - {args: [["x", "y", "x", "y", "z"], 2], expected: ["x", "y"]}
+    - {args: [["m", "m", "n"], 1], expected: ["m"]}
+    - {args: [["the", "day", "is", "sunny", "the", "the", "sunny", "is", "is"], 4], expected: ["is", "the", "sunny", "day"]}
+
+- title: Friend groups
+  domain: outreach
+  difficulty: 3
+  duration_minutes: 25
+  instructions: |-
+    links[i][j] is 1 if person i and person j are directly connected (it's symmetric, and links[i][i] is 1). Friends of friends are in the same group. Return the number of groups.
+
+    Example 1:
+      friend_groups([[1, 1, 0], [1, 1, 0], [0, 0, 1]]) -> 2
+    Example 2:
+      friend_groups([[1, 0, 0], [0, 1, 0], [0, 0, 1]]) -> 3
+
+    Constraints: 1 <= n <= 200.
+  done_criteria: All hidden tests pass.
+  function: friend_groups
+  signature: 'def friend_groups(links: list[list[int]]) -> int:'
+  tests:
+    - {args: [[[1, 1, 0], [1, 1, 0], [0, 0, 1]]], expected: 2}
+    - {args: [[[1, 0, 0], [0, 1, 0], [0, 0, 1]]], expected: 3}
+    - {args: [[[1]]], expected: 1}
+    - {args: [[[1, 1], [1, 1]]], expected: 1}
+    - {args: [[[1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 1, 1], [1, 0, 1, 1]]], expected: 1}
+    - {args: [[[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 1], [0, 0, 1, 1]]], expected: 3}
+
+- title: Degrees apart
   domain: outreach
   difficulty: 4
   duration_minutes: 30
-  instructions: >-
-    Take part in a community you're curious about, online or local: post a helpful
-    reply, ask a question, or attend a meet-up.
-  done_criteria: You contributed at least once.
+  instructions: |-
+    Each pair is two people who know each other. Return the fewest links in a chain from a to b (0 if they are the same person), or -1 if they aren't connected.
 
-- title: Host a small gathering
-  domain: outreach
-  difficulty: 5
-  duration_minutes: 60
-  instructions: >-
-    Host two or more people for an hour, in person or on a video call. Plan one
-    small thing to do together.
-  done_criteria: The gathering happened.
+    Example 1:
+      degrees_apart([['ana', 'bo'], ['bo', 'cy']], 'ana', 'cy') -> 2
+    Example 2:
+      degrees_apart([['ana', 'bo']], 'ana', 'dee') -> -1
 
-- title: Reconnect
+    Constraints: 0 <= len(friendships) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: degrees_apart
+  signature: 'def degrees_apart(friendships: list[list[str]], a: str, b: str) -> int:'
+  tests:
+    - {args: [[["ana", "bo"], ["bo", "cy"]], "ana", "cy"], expected: 2}
+    - {args: [[["ana", "bo"]], "ana", "dee"], expected: -1}
+    - {args: [[], "x", "x"], expected: 0}
+    - {args: [[["a", "b"], ["b", "c"], ["a", "c"]], "a", "c"], expected: 1}
+    - {args: [[["a", "b"], ["c", "d"]], "a", "d"], expected: -1}
+    - {args: [[["a", "b"], ["b", "c"], ["c", "d"], ["d", "e"], ["b", "e"]], "a", "e"], expected: 2}
+
+- title: Merge the call logs
   domain: outreach
-  difficulty: 5
+  difficulty: 4
   duration_minutes: 30
-  instructions: >-
-    Reach out to someone you've lost touch with. Mention a memory you share and
-    suggest catching up properly.
-  done_criteria: You reached out with a shared memory.
+  instructions: |-
+    Each log is a sorted list of call times. Merge all of them into one sorted list.
 
-# --- training ---------------------------------------------------------------
-- title: Five new words
-  domain: training
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Learn five words in a language you don't speak. Test yourself at the end.
-  done_criteria: You can recall all five words.
+    Example 1:
+      merge_call_logs([[1, 4, 5], [1, 3, 4], [2, 6]]) -> [1, 1, 2, 3, 4, 4, 5, 6]
+    Example 2:
+      merge_call_logs([]) -> []
 
-- title: One encyclopedia article
+    Constraints: 0 <= len(logs) <= 10^4; total calls <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: merge_call_logs
+  signature: 'def merge_call_logs(logs: list[list[int]]) -> list[int]:'
+  tests:
+    - {args: [[[1, 4, 5], [1, 3, 4], [2, 6]]], expected: [1, 1, 2, 3, 4, 4, 5, 6]}
+    - {args: [[]], expected: []}
+    - {args: [[[]]], expected: []}
+    - {args: [[[5]]], expected: [5]}
+    - {args: [[[1, 2], [], [0, 3]]], expected: [0, 1, 2, 3]}
+    - {args: [[[2, 2], [2], [1, 2]]], expected: [1, 2, 2, 2, 2]}
+
+- title: Phone tree
+  domain: outreach
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    People are numbered 0 to n-1. Each call [u, v, m] means u can pass news to v in m minutes. News starts with person start. Return the minutes until everyone has heard, or -1 if someone never will.
+
+    Example 1:
+      phone_tree(4, [[1, 0, 1], [1, 2, 1], [2, 3, 1]], 1) -> 2
+    Example 2:
+      phone_tree(2, [[0, 1, 1]], 0) -> 1
+
+    Constraints: 1 <= n <= 100; 0 <= len(calls) <= 6000; 0 <= m <= 100.
+  done_criteria: All hidden tests pass.
+  function: phone_tree
+  signature: 'def phone_tree(n: int, calls: list[list[int]], start: int) -> int:'
+  tests:
+    - {args: [4, [[1, 0, 1], [1, 2, 1], [2, 3, 1]], 1], expected: 2}
+    - {args: [2, [[0, 1, 1]], 0], expected: 1}
+    - {args: [2, [[0, 1, 1]], 1], expected: -1}
+    - {args: [1, [], 0], expected: 0}
+    - {args: [3, [[0, 1, 5], [0, 2, 1], [2, 1, 1]], 0], expected: 2}
+    - {args: [3, [[0, 1, 2], [1, 2, 2]], 0], expected: 4}
+
+- title: Pass the message
+  domain: outreach
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    Change start into goal one letter at a time; every intermediate word (and goal) must be in words. Return the number of words in the shortest chain, counting start and goal, or 0 if there is no chain.
+
+    Example 1:
+      message_hops('hit', 'cog', ['hot', 'dot', 'dog', 'lot', 'log', 'cog']) -> 5
+    Example 2:
+      message_hops('hit', 'cog', ['hot', 'dot', 'dog', 'lot', 'log']) -> 0
+
+    Constraints: 1 <= len(start) <= 10; all words are the same length and lowercase; start != goal.
+  done_criteria: All hidden tests pass.
+  function: message_hops
+  signature: 'def message_hops(start: str, goal: str, words: list[str]) -> int:'
+  tests:
+    - {args: ["hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog"]], expected: 5}
+    - {args: ["hit", "cog", ["hot", "dot", "dog", "lot", "log"]], expected: 0}
+    - {args: ["a", "c", ["a", "b", "c"]], expected: 2}
+    - {args: ["cold", "warm", ["cord", "card", "ward", "warm", "word", "wood"]], expected: 5}
+    - {args: ["same", "game", ["game"]], expected: 2}
+    - {args: ["abc", "xyz", ["abz", "ayz", "xyz"]], expected: 4}
+
+
+# --- training ------------------------------------------------------------------
+- title: Flashcard score
   domain: training
   difficulty: 1
   duration_minutes: 10
-  instructions: >-
-    Read or listen to one encyclopedia article on a topic you know nothing about.
-    Write down one surprising fact.
-  done_criteria: One surprising fact noted.
+  instructions: |-
+    Return how many of your flashcard answers match the answer key in the same position.
 
-- title: Short talk, three takeaways
+    Example 1:
+      flashcard_score(['a', 'b', 'c'], ['a', 'x', 'c']) -> 2
+    Example 2:
+      flashcard_score([], []) -> 0
+
+    Constraints: 0 <= len(answers) == len(key) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: flashcard_score
+  signature: 'def flashcard_score(answers: list[str], key: list[str]) -> int:'
+  tests:
+    - {args: [["a", "b", "c"], ["a", "x", "c"]], expected: 2}
+    - {args: [[], []], expected: 0}
+    - {args: [["y"], ["y"]], expected: 1}
+    - {args: [["n"], ["y"]], expected: 0}
+    - {args: [["1", "2", "3", "4"], ["1", "2", "3", "4"]], expected: 4}
+    - {args: [["A", "b"], ["a", "b"]], expected: 1}
+
+- title: Fizz drill
+  domain: training
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    Return the numbers 1 to n as strings, except multiples of 3 become "Fizz", multiples of 5 become "Buzz", and multiples of both become "FizzBuzz".
+
+    Example 1:
+      fizz_drill(5) -> ['1', '2', 'Fizz', '4', 'Buzz']
+    Example 2:
+      fizz_drill(1) -> ['1']
+
+    Constraints: 1 <= n <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: fizz_drill
+  signature: 'def fizz_drill(n: int) -> list[str]:'
+  tests:
+    - {args: [5], expected: ["1", "2", "Fizz", "4", "Buzz"]}
+    - {args: [1], expected: ["1"]}
+    - {args: [3], expected: ["1", "2", "Fizz"]}
+    - {args: [15], expected: ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz"]}
+    - {args: [16], expected: ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16"]}
+    - {args: [30], expected: ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17", "Fizz", "19", "Buzz", "Fizz", "22", "23", "Fizz", "Buzz", "26", "Fizz", "28", "29", "FizzBuzz"]}
+
+- title: Search the glossary
   domain: training
   difficulty: 2
   duration_minutes: 15
-  instructions: >-
-    Watch or listen to a talk or lecture under fifteen minutes and note three things
-    you learned.
-  done_criteria: Three takeaways written down.
+  instructions: |-
+    The glossary is sorted alphabetically with no duplicates. Return the index of target, or -1 if it isn't there. Aim for binary search.
 
-- title: Learn a card trick
+    Example 1:
+      glossary_search(['apple', 'kiwi', 'mango', 'pear'], 'mango') -> 2
+    Example 2:
+      glossary_search(['apple', 'kiwi'], 'fig') -> -1
+
+    Constraints: 0 <= len(terms) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: glossary_search
+  signature: 'def glossary_search(terms: list[str], target: str) -> int:'
+  tests:
+    - {args: [["apple", "kiwi", "mango", "pear"], "mango"], expected: 2}
+    - {args: [["apple", "kiwi"], "fig"], expected: -1}
+    - {args: [[], "x"], expected: -1}
+    - {args: [["a"], "a"], expected: 0}
+    - {args: [["a", "b", "c", "d", "e"], "a"], expected: 0}
+    - {args: [["a", "b", "c", "d", "e"], "e"], expected: 4}
+
+- title: Merge the study lists
   domain: training
   difficulty: 2
   duration_minutes: 15
-  instructions: >-
-    Learn one simple card trick and practise it until you can perform it smoothly
-    three times in a row.
-  done_criteria: Three clean performances in a row.
-  requires: [hands]
+  instructions: |-
+    Both lists of session lengths are sorted. Return one sorted list with every session from both.
 
-- title: Teach it back
+    Example 1:
+      merge_study_lists([1, 2, 4], [1, 3, 4]) -> [1, 1, 2, 3, 4, 4]
+    Example 2:
+      merge_study_lists([], []) -> []
+
+    Constraints: 0 <= len(a), len(b) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: merge_study_lists
+  signature: 'def merge_study_lists(a: list[int], b: list[int]) -> list[int]:'
+  tests:
+    - {args: [[1, 2, 4], [1, 3, 4]], expected: [1, 1, 2, 3, 4, 4]}
+    - {args: [[], []], expected: []}
+    - {args: [[], [0]], expected: [0]}
+    - {args: [[5, 6], [1]], expected: [1, 5, 6]}
+    - {args: [[1, 1], [1]], expected: [1, 1, 1]}
+    - {args: [[-3, 0, 9], [-5, 10]], expected: [-5, -3, 0, 9, 10]}
+
+- title: Longest study run
   domain: training
   difficulty: 3
   duration_minutes: 20
-  instructions: >-
-    Pick something you understand well and explain it in about two hundred words as
-    if to a curious twelve-year-old.
-  done_criteria: Your explanation is written or recorded.
+  instructions: |-
+    Given the day numbers you studied, in any order and possibly repeated, return the length of the longest run of consecutive days. Aim for O(n).
 
-- title: Puzzle set
+    Example 1:
+      longest_study_run([100, 4, 200, 1, 3, 2]) -> 4
+    Example 2:
+      longest_study_run([0, 3, 7, 2, 5, 8, 4, 6, 0, 1]) -> 9
+
+    Constraints: 0 <= len(days) <= 10^5.
+  done_criteria: All hidden tests pass.
+  function: longest_study_run
+  signature: 'def longest_study_run(days: list[int]) -> int:'
+  tests:
+    - {args: [[100, 4, 200, 1, 3, 2]], expected: 4}
+    - {args: [[0, 3, 7, 2, 5, 8, 4, 6, 0, 1]], expected: 9}
+    - {args: [[]], expected: 0}
+    - {args: [[5]], expected: 1}
+    - {args: [[1, 2, 0, 1]], expected: 3}
+    - {args: [[10, 30, 20]], expected: 1}
+
+- title: Kth best score
   domain: training
   difficulty: 3
   duration_minutes: 20
-  instructions: >-
-    Solve five logic puzzles, chess puzzles or crossword clues a notch harder than usual.
-  done_criteria: Five puzzles attempted, at least three solved.
+  instructions: |-
+    Return the kth highest score (k = 1 is the highest). Repeated scores count separately.
 
-- title: Free online lesson
+    Example 1:
+      kth_best_score([3, 2, 1, 5, 6, 4], 2) -> 5
+    Example 2:
+      kth_best_score([3, 2, 3, 1, 2, 4, 5, 5, 6], 4) -> 4
+
+    Constraints: 1 <= k <= len(scores) <= 10^5.
+  done_criteria: All hidden tests pass.
+  function: kth_best_score
+  signature: 'def kth_best_score(scores: list[int], k: int) -> int:'
+  tests:
+    - {args: [[3, 2, 1, 5, 6, 4], 2], expected: 5}
+    - {args: [[3, 2, 3, 1, 2, 4, 5, 5, 6], 4], expected: 4}
+    - {args: [[7], 1], expected: 7}
+    - {args: [[1, 1, 1], 3], expected: 1}
+    - {args: [[-1, -5, -3], 1], expected: -1}
+    - {args: [[9, 8, 7, 6], 4], expected: 6}
+
+- title: Longest rising scores
   domain: training
   difficulty: 4
   duration_minutes: 30
-  instructions: >-
-    Complete one lesson of a free online course in a subject you've always wondered about.
-  done_criteria: The lesson is complete.
+  instructions: |-
+    Return the length of the longest strictly increasing sequence you can pick from the scores, keeping their order (you may skip scores).
 
-- title: Memorise a short poem
+    Example 1:
+      longest_rising_scores([10, 9, 2, 5, 3, 7, 101, 18]) -> 4
+    Example 2:
+      longest_rising_scores([0, 1, 0, 3, 2, 3]) -> 4
+
+    Constraints: 1 <= len(scores) <= 2500.
+  done_criteria: All hidden tests pass.
+  function: longest_rising_scores
+  signature: 'def longest_rising_scores(scores: list[int]) -> int:'
+  tests:
+    - {args: [[10, 9, 2, 5, 3, 7, 101, 18]], expected: 4}
+    - {args: [[0, 1, 0, 3, 2, 3]], expected: 4}
+    - {args: [[7, 7, 7, 7]], expected: 1}
+    - {args: [[1]], expected: 1}
+    - {args: [[5, 4, 3, 2, 1]], expected: 1}
+    - {args: [[1, 3, 6, 7, 9, 4, 10, 5, 6]], expected: 6}
+
+- title: Course order
   domain: training
   difficulty: 4
+  duration_minutes: 35
+  instructions: |-
+    Courses are numbered 0 to n-1, and [a, b] means a must come before b. Return an order that takes every course, always choosing the smallest-numbered course available next. Return [] if it's impossible.
+
+    Example 1:
+      course_order(4, [[1, 0], [2, 0], [3, 1], [3, 2]]) -> [3, 1, 2, 0]
+    Example 2:
+      course_order(2, [[0, 1], [1, 0]]) -> []
+
+    Constraints: 1 <= n <= 2000; 0 <= len(before) <= 5000.
+  done_criteria: All hidden tests pass.
+  function: course_order
+  signature: 'def course_order(n: int, before: list[list[int]]) -> list[int]:'
+  tests:
+    - {args: [4, [[1, 0], [2, 0], [3, 1], [3, 2]]], expected: [3, 1, 2, 0]}
+    - {args: [2, [[0, 1], [1, 0]]], expected: []}
+    - {args: [1, []], expected: [0]}
+    - {args: [3, []], expected: [0, 1, 2]}
+    - {args: [3, [[2, 1], [1, 0]]], expected: [2, 1, 0]}
+    - {args: [5, [[0, 4], [1, 4], [4, 2]]], expected: [0, 1, 3, 4, 2]}
+
+- title: Fewest lessons
+  domain: training
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    Lessons come in the given lengths, and you can repeat any length. Return the fewest lessons that add up to exactly minutes, or -1 if it can't be done.
+
+    Example 1:
+      fewest_lessons([1, 2, 5], 11) -> 3
+    Example 2:
+      fewest_lessons([2], 3) -> -1
+
+    Constraints: 1 <= len(lengths) <= 12; 1 <= lengths[i] <= 10^4; 0 <= minutes <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: fewest_lessons
+  signature: 'def fewest_lessons(lengths: list[int], minutes: int) -> int:'
+  tests:
+    - {args: [[1, 2, 5], 11], expected: 3}
+    - {args: [[2], 3], expected: -1}
+    - {args: [[1], 0], expected: 0}
+    - {args: [[3, 7], 14], expected: 2}
+    - {args: [[5, 10, 25], 30], expected: 2}
+    - {args: [[186, 419, 83, 408], 6249], expected: 20}
+
+- title: Shared syllabus
+  domain: training
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    Each syllabus is a string of topic letters. Return the length of the longest sequence of topics that appears in both, in order (not necessarily next to each other).
+
+    Example 1:
+      shared_syllabus('abcde', 'ace') -> 3
+    Example 2:
+      shared_syllabus('abc', 'abc') -> 3
+
+    Constraints: 0 <= len(a), len(b) <= 1000.
+  done_criteria: All hidden tests pass.
+  function: shared_syllabus
+  signature: 'def shared_syllabus(a: str, b: str) -> int:'
+  tests:
+    - {args: ["abcde", "ace"], expected: 3}
+    - {args: ["abc", "abc"], expected: 3}
+    - {args: ["abc", "def"], expected: 0}
+    - {args: ["", "a"], expected: 0}
+    - {args: ["ABCBDAB", "BDCABA"], expected: 4}
+    - {args: ["aaaa", "aa"], expected: 2}
+
+
+# --- caretaking ----------------------------------------------------------------
+- title: Thirsty plants
+  domain: caretaking
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    days_since[i] is how many days since plant i was watered. Return how many plants have gone at least limit days.
+
+    Example 1:
+      thirsty_plants([1, 4, 3, 7], 3) -> 3
+    Example 2:
+      thirsty_plants([], 2) -> 0
+
+    Constraints: 0 <= len(days_since) <= 10^4; 1 <= limit <= 365.
+  done_criteria: All hidden tests pass.
+  function: thirsty_plants
+  signature: 'def thirsty_plants(days_since: list[int], limit: int) -> int:'
+  tests:
+    - {args: [[1, 4, 3, 7], 3], expected: 3}
+    - {args: [[], 2], expected: 0}
+    - {args: [[0, 0], 1], expected: 0}
+    - {args: [[5, 5, 5], 5], expected: 3}
+    - {args: [[2], 3], expected: 0}
+    - {args: [[10, 1, 10], 10], expected: 2}
+
+- title: Busiest feeding day
+  domain: caretaking
+  difficulty: 1
+  duration_minutes: 10
+  instructions: |-
+    meals[i] is how many meals the animals had on day i. Return the first day with the most meals.
+
+    Example 1:
+      busiest_feeding_day([3, 5, 2, 5]) -> 1
+    Example 2:
+      busiest_feeding_day([1]) -> 0
+
+    Constraints: 1 <= len(meals) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: busiest_feeding_day
+  signature: 'def busiest_feeding_day(meals: list[int]) -> int:'
+  tests:
+    - {args: [[3, 5, 2, 5]], expected: 1}
+    - {args: [[1]], expected: 0}
+    - {args: [[0, 0, 0]], expected: 0}
+    - {args: [[1, 2, 3]], expected: 2}
+    - {args: [[9, 1, 9]], expected: 0}
+    - {args: [[4, 7, 7, 2]], expected: 1}
+
+- title: Watering can rounds
+  domain: caretaking
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    Plant i stands at position i and needs plants[i] of water; the tap is at position -1. You start at the tap with a full can, walk right watering each plant in order, and walk back to refill (then return) only when the can can't fully water the next plant. Each move of one position is one step. Return the total steps.
+
+    Example 1:
+      watering_steps([2, 2, 3, 3], 5) -> 14
+    Example 2:
+      watering_steps([1, 1, 1, 4, 2, 3], 4) -> 30
+
+    Constraints: 1 <= len(plants) <= 1000; 1 <= plants[i] <= capacity <= 10^6.
+  done_criteria: All hidden tests pass.
+  function: watering_steps
+  signature: 'def watering_steps(plants: list[int], capacity: int) -> int:'
+  tests:
+    - {args: [[2, 2, 3, 3], 5], expected: 14}
+    - {args: [[1, 1, 1, 4, 2, 3], 4], expected: 30}
+    - {args: [[7, 7, 7, 7, 7, 7, 7], 8], expected: 49}
+    - {args: [[1], 1], expected: 1}
+    - {args: [[3, 3], 3], expected: 4}
+    - {args: [[1, 2, 3], 6], expected: 3}
+
+- title: Room in the bed
+  domain: caretaking
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    A flower bed is a row of plots: 1 is planted, 0 is empty. New plants can't go next to another plant. Return True if n new plants fit.
+
+    Example 1:
+      can_plant([1, 0, 0, 0, 1], 1) -> True
+    Example 2:
+      can_plant([1, 0, 0, 0, 1], 2) -> False
+
+    Constraints: 1 <= len(bed) <= 2 * 10^4; the bed has no adjacent plants; 0 <= n <= len(bed).
+  done_criteria: All hidden tests pass.
+  function: can_plant
+  signature: 'def can_plant(bed: list[int], n: int) -> bool:'
+  tests:
+    - {args: [[1, 0, 0, 0, 1], 1], expected: true}
+    - {args: [[1, 0, 0, 0, 1], 2], expected: false}
+    - {args: [[0], 1], expected: true}
+    - {args: [[0, 0, 1, 0, 0], 2], expected: true}
+    - {args: [[1, 0, 1], 1], expected: false}
+    - {args: [[0, 0, 0, 0, 0], 3], expected: true}
+
+- title: Days until warmer
+  domain: caretaking
+  difficulty: 3
   duration_minutes: 25
-  instructions: >-
-    Memorise a poem of eight to twelve lines and recite it without looking.
-  done_criteria: One full recitation from memory.
+  instructions: |-
+    For each day's temperature, return how many days you'd wait for a warmer one, or 0 if none comes. The greenhouse plants will thank you.
 
-- title: Research and explain
-  domain: training
-  difficulty: 5
-  duration_minutes: 45
-  instructions: >-
-    Research a question you've wondered about and write a one-page explainer with
-    at least two sources.
-  done_criteria: A one-page explainer with sources.
+    Example 1:
+      days_until_warmer([73, 74, 75, 71, 69, 72, 76, 73]) -> [1, 1, 4, 2, 1, 1, 0, 0]
+    Example 2:
+      days_until_warmer([30, 40, 50, 60]) -> [1, 1, 1, 0]
 
-- title: Tiny project, new skill
-  domain: training
-  difficulty: 5
-  duration_minutes: 45
-  instructions: >-
-    Use a skill you've only just started learning to make one small finished thing:
-    a sentence in a new language, a short script, a simple knot, a sketch technique.
-  done_criteria: You have a finished small thing.
+    Constraints: 1 <= len(temps) <= 10^5.
+  done_criteria: All hidden tests pass.
+  function: days_until_warmer
+  signature: 'def days_until_warmer(temps: list[int]) -> list[int]:'
+  tests:
+    - {args: [[73, 74, 75, 71, 69, 72, 76, 73]], expected: [1, 1, 4, 2, 1, 1, 0, 0]}
+    - {args: [[30, 40, 50, 60]], expected: [1, 1, 1, 0]}
+    - {args: [[30, 60, 90]], expected: [1, 1, 0]}
+    - {args: [[50]], expected: [0]}
+    - {args: [[60, 50, 40]], expected: [0, 0, 0]}
+    - {args: [[34, 80, 80, 34, 34, 80, 80, 80, 80, 34]], expected: [1, 0, 0, 2, 1, 0, 0, 0, 0, 0]}
 
-# --- caretaking -----------------------------------------------------------
-- title: Tend something living
-  domain: caretaking
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Water a plant, refresh a pet's water, or put out water for birds. Take a moment
-    to check how it's doing.
-  done_criteria: Something living is looked after.
-
-- title: A mindful drink
-  domain: caretaking
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Make a drink for someone else, or for yourself, and enjoy it without a screen.
-  done_criteria: The drink was made and enjoyed.
-
-- title: Check in on someone
-  domain: caretaking
-  difficulty: 2
-  duration_minutes: 10
-  instructions: >-
-    Check in on a neighbour, friend or relative who might appreciate it. Ask if
-    there's anything small you can help with.
-  done_criteria: You checked in.
-
-- title: Ten minutes for you
-  domain: caretaking
-  difficulty: 2
-  duration_minutes: 10
-  instructions: >-
-    Spend ten minutes doing something restful purely for yourself: a bath, music,
-    sitting in the sun, a nap.
-  done_criteria: Ten restful minutes taken.
-
-- title: Bake or cook to share
-  domain: caretaking
-  difficulty: 3
-  duration_minutes: 30
-  instructions: >-
-    Make something simple to share with someone else, and share it.
-  done_criteria: Someone else got some.
-  requires: [standing, hands]
-
-- title: Tidy your street
+- title: Quietest spot
   domain: caretaking
   difficulty: 3
   duration_minutes: 20
-  instructions: >-
-    Spend twenty minutes picking up litter near your home, wearing gloves. Leave
-    anything sharp or hazardous alone.
-  done_criteria: A bag of litter collected.
-  requires: [walking, going_out, hands]
+  instructions: |-
+    In a row of seats, 1 is taken and 0 is free. You want to sit as far as possible from the nearest person. Return that greatest distance.
 
-- title: Help with a put-off task
-  domain: caretaking
-  difficulty: 4
-  duration_minutes: 40
-  instructions: >-
-    Offer to help someone with a small job they've been putting off (sorting,
-    writing, setting up a device), and do it together.
-  done_criteria: The job is done or properly started.
+    Example 1:
+      best_spot([1, 0, 0, 0, 1, 0, 1]) -> 2
+    Example 2:
+      best_spot([1, 0, 0, 0]) -> 3
 
-- title: Care package
+    Constraints: 2 <= len(seats) <= 2 * 10^4; at least one seat is free and one is taken.
+  done_criteria: All hidden tests pass.
+  function: best_spot
+  signature: 'def best_spot(seats: list[int]) -> int:'
+  tests:
+    - {args: [[1, 0, 0, 0, 1, 0, 1]], expected: 2}
+    - {args: [[1, 0, 0, 0]], expected: 3}
+    - {args: [[0, 1]], expected: 1}
+    - {args: [[1, 0]], expected: 1}
+    - {args: [[0, 0, 1, 0, 0, 0, 0, 1]], expected: 2}
+    - {args: [[1, 0, 1, 0, 1]], expected: 1}
+
+- title: Largest garden bed
   domain: caretaking
   difficulty: 4
   duration_minutes: 30
-  instructions: >-
-    Put together a small care package for someone going through a hard time: a
-    note plus two or three small things you already have.
-  done_criteria: The package is ready to give.
+  instructions: |-
+    '#' is soil and '.' is path. Soil cells that touch up, down, left or right form one bed. Return the number of cells in the largest bed (0 if there's no soil).
 
-- title: Volunteer for an hour
+    Example 1:
+      largest_garden_bed(['##..#', '#...#', '..#..', '....#']) -> 3
+    Example 2:
+      largest_garden_bed(['...']) -> 0
+
+    Constraints: 1 <= rows, cols <= 50.
+  done_criteria: All hidden tests pass.
+  function: largest_garden_bed
+  signature: 'def largest_garden_bed(grid: list[str]) -> int:'
+  tests:
+    - {args: [["##..#", "#...#", "..#..", "....#"]], expected: 3}
+    - {args: [["..."]], expected: 0}
+    - {args: [["#"]], expected: 1}
+    - {args: [["##.", "#..", "..#"]], expected: 3}
+    - {args: [["###", "###"]], expected: 6}
+    - {args: [["#.#.#", ".#.#.", "#.#.#"]], expected: 1}
+
+- title: Stepping stones
   domain: caretaking
-  difficulty: 5
-  duration_minutes: 60
-  instructions: >-
-    Give an hour to a local cause (a food bank, community garden, library or
-    charity shop), in person or remotely.
-  done_criteria: One hour volunteered.
+  difficulty: 4
+  duration_minutes: 30
+  instructions: |-
+    You start on stone 0. From stone i you can hop forward up to stones[i] stones. Return True if you can reach the last stone.
 
-- title: Organise a kindness project
+    Example 1:
+      can_hop_across([2, 3, 1, 1, 4]) -> True
+    Example 2:
+      can_hop_across([3, 2, 1, 0, 4]) -> False
+
+    Constraints: 1 <= len(stones) <= 10^4; 0 <= stones[i] <= 10^5.
+  done_criteria: All hidden tests pass.
+  function: can_hop_across
+  signature: 'def can_hop_across(stones: list[int]) -> bool:'
+  tests:
+    - {args: [[2, 3, 1, 1, 4]], expected: true}
+    - {args: [[3, 2, 1, 0, 4]], expected: false}
+    - {args: [[0]], expected: true}
+    - {args: [[1, 0]], expected: true}
+    - {args: [[0, 1]], expected: false}
+    - {args: [[2, 0, 0]], expected: true}
+
+- title: Fair treats
   domain: caretaking
   difficulty: 5
   duration_minutes: 45
-  instructions: >-
-    Get two or more people to join you in a small kindness, such as writing cards for a
-    care home or collecting donations, and set it in motion.
-  done_criteria: At least two others have agreed to join.
+  instructions: |-
+    Pets stand in a row with these good-behaviour ratings. Every pet gets at least one treat, and a pet rated higher than a neighbour gets more treats than that neighbour. Return the fewest treats needed.
 
-# --- tickets ----------------------------------------------------------------
-# Coding, maths and science problems. Each problem is written into the
-# task so it works offline, and on paper when no computer is to hand.
-- title: Mental maths warm-up
-  domain: tickets
-  difficulty: 1
-  duration_minutes: 5
-  instructions: >-
-    Without a calculator, work out: 17 + 38, 9 x 7, 144 / 12, 25% of 80, and
-    half of 3/4. Then check each one another way.
-  done_criteria: All five answered and checked.
+    Example 1:
+      fair_treats([1, 0, 2]) -> 5
+    Example 2:
+      fair_treats([1, 2, 2]) -> 4
 
-- title: Why is the sky blue?
+    Constraints: 1 <= len(ratings) <= 2 * 10^4.
+  done_criteria: All hidden tests pass.
+  function: fair_treats
+  signature: 'def fair_treats(ratings: list[int]) -> int:'
+  tests:
+    - {args: [[1, 0, 2]], expected: 5}
+    - {args: [[1, 2, 2]], expected: 4}
+    - {args: [[5]], expected: 1}
+    - {args: [[1, 2, 3, 4]], expected: 10}
+    - {args: [[4, 3, 2, 1]], expected: 10}
+    - {args: [[1, 3, 4, 5, 2]], expected: 11}
+
+- title: Fewest sprinklers
+  domain: caretaking
+  difficulty: 5
+  duration_minutes: 45
+  instructions: |-
+    A garden runs from 0 to n with a sprinkler at every whole point 0..n. Sprinkler i waters [i - ranges[i], i + ranges[i]]. Return the fewest sprinklers to turn on so the whole garden is watered, or -1 if that's impossible.
+
+    Example 1:
+      fewest_sprinklers(5, [3, 4, 1, 1, 0, 0]) -> 1
+    Example 2:
+      fewest_sprinklers(3, [0, 0, 0, 0]) -> -1
+
+    Constraints: 1 <= n <= 10^4; len(ranges) == n + 1; 0 <= ranges[i] <= 100.
+  done_criteria: All hidden tests pass.
+  function: fewest_sprinklers
+  signature: 'def fewest_sprinklers(n: int, ranges: list[int]) -> int:'
+  tests:
+    - {args: [5, [3, 4, 1, 1, 0, 0]], expected: 1}
+    - {args: [3, [0, 0, 0, 0]], expected: -1}
+    - {args: [7, [1, 2, 1, 0, 2, 1, 0, 1]], expected: 3}
+    - {args: [1, [1, 0]], expected: 1}
+    - {args: [4, [0, 0, 0, 0, 4]], expected: 1}
+    - {args: [8, [4, 0, 0, 0, 0, 0, 0, 0, 4]], expected: 2}
+
+
+# --- tickets -------------------------------------------------------------------
+- title: Sum of digits
   domain: tickets
   difficulty: 1
   duration_minutes: 10
-  instructions: >-
-    Write down your best guess for why the sky is blue and sunsets are red. Then
-    look it up and note one thing your guess got right and one it missed.
-  done_criteria: Your guess and the two notes are written down.
+  instructions: |-
+    Return the sum of the digits of n (ignore a minus sign).
 
-- title: Trace the loop
+    Example 1:
+      digit_sum(1234) -> 10
+    Example 2:
+      digit_sum(0) -> 0
+
+    Constraints: -10^9 <= n <= 10^9.
+  done_criteria: All hidden tests pass.
+  function: digit_sum
+  signature: 'def digit_sum(n: int) -> int:'
+  tests:
+    - {args: [1234], expected: 10}
+    - {args: [0], expected: 0}
+    - {args: [-45], expected: 9}
+    - {args: [9], expected: 9}
+    - {args: [1000000000], expected: 1}
+    - {args: [987654321], expected: 45}
+
+- title: Is it prime?
   domain: tickets
-  difficulty: 2
+  difficulty: 1
   duration_minutes: 10
-  instructions: >-
-    On paper, predict what this prints, step by step: total = 0; for i in 1, 2,
-    3, 4: if i is even, add i * i to total; print total. Then run it in any
-    language, or check it with a friend, to see if you were right.
-  done_criteria: You have a written prediction and know whether it was right.
+  instructions: |-
+    Return True if n is a prime number.
 
-- title: Estimate it
+    Example 1:
+      is_prime(7) -> True
+    Example 2:
+      is_prime(1) -> False
+
+    Constraints: -10^6 <= n <= 10^6.
+  done_criteria: All hidden tests pass.
+  function: is_prime
+  signature: 'def is_prime(n: int) -> bool:'
+  tests:
+    - {args: [7], expected: true}
+    - {args: [1], expected: false}
+    - {args: [2], expected: true}
+    - {args: [0], expected: false}
+    - {args: [91], expected: false}
+    - {args: [999983], expected: true}
+
+- title: Celsius to Fahrenheit
   domain: tickets
   difficulty: 2
   duration_minutes: 15
-  instructions: >-
-    Estimate how many times your heart beats in a year. Write each assumption you
-    make, then compare your answer with a looked-up figure.
-  done_criteria: An estimate with its assumptions, within a factor of ten.
+  instructions: |-
+    Convert each temperature with F = C * 9/5 + 32. Don't round; answers within a millionth count as correct.
 
-- title: FizzBuzz, your way
+    Example 1:
+      to_fahrenheit([0, 100]) -> [32.0, 212.0]
+    Example 2:
+      to_fahrenheit([-40]) -> [-40.0]
+
+    Constraints: 0 <= len(celsius) <= 10^4.
+  done_criteria: All hidden tests pass.
+  function: to_fahrenheit
+  signature: 'def to_fahrenheit(celsius: list[float]) -> list[float]:'
+  tests:
+    - {args: [[0, 100]], expected: [32.0, 212.0]}
+    - {args: [[-40]], expected: [-40.0]}
+    - {args: [[]], expected: []}
+    - {args: [[37.5]], expected: [99.5]}
+    - {args: [[-273.15, 20, 21.3]], expected: [-459.67, 68.0, 70.34]}
+    - {args: [[1, 2, 3]], expected: [33.8, 35.6, 37.4]}
+
+- title: Roman numerals
+  domain: tickets
+  difficulty: 2
+  duration_minutes: 15
+  instructions: |-
+    Convert a Roman numeral (I, V, X, L, C, D, M, with subtractive pairs like IV and CM) to an integer.
+
+    Example 1:
+      roman_to_int('III') -> 3
+    Example 2:
+      roman_to_int('LVIII') -> 58
+
+    Constraints: 1 <= value <= 3999; the numeral is valid.
+  done_criteria: All hidden tests pass.
+  function: roman_to_int
+  signature: 'def roman_to_int(numeral: str) -> int:'
+  tests:
+    - {args: ["III"], expected: 3}
+    - {args: ["LVIII"], expected: 58}
+    - {args: ["MCMXCIV"], expected: 1994}
+    - {args: ["IV"], expected: 4}
+    - {args: ["MMMCMXCIX"], expected: 3999}
+    - {args: ["XL"], expected: 40}
+
+- title: Pascal's triangle row
   domain: tickets
   difficulty: 3
   duration_minutes: 20
-  instructions: >-
-    Write a program, or pseudocode on paper, that counts 1 to 30, saying "Fizz"
-    for multiples of 3, "Buzz" for multiples of 5 and "FizzBuzz" for both. Then
-    change it so 7 says "Bang".
-  done_criteria: Both versions are written and give the right output for 1 to 30.
+  instructions: |-
+    Return row n of Pascal's triangle (row 0 is [1]).
 
-- title: Kitchen science
+    Example 1:
+      pascal_row(3) -> [1, 3, 3, 1]
+    Example 2:
+      pascal_row(0) -> [1]
+
+    Constraints: 0 <= n <= 33.
+  done_criteria: All hidden tests pass.
+  function: pascal_row
+  signature: 'def pascal_row(n: int) -> list[int]:'
+  tests:
+    - {args: [3], expected: [1, 3, 3, 1]}
+    - {args: [0], expected: [1]}
+    - {args: [1], expected: [1, 1]}
+    - {args: [4], expected: [1, 4, 6, 4, 1]}
+    - {args: [10], expected: [1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1]}
+    - {args: [33], expected: [1, 33, 528, 5456, 40920, 237336, 1107568, 4272048, 13884156, 38567100, 92561040, 193536720, 354817320, 573166440, 818809200, 1037158320, 1166803110, 1166803110, 1037158320, 818809200, 573166440, 354817320, 193536720, 92561040, 38567100, 13884156, 4272048, 1107568, 237336, 40920, 5456, 528, 33, 1]}
+
+- title: Valid sudoku
   domain: tickets
   difficulty: 3
-  duration_minutes: 20
-  instructions: >-
-    Predict, then test: does a cube of ice melt faster in plain water or in salty
-    water at room temperature? Use two cups of the same size and time them. Explain
-    the result in two sentences.
-  done_criteria: A prediction, two timings and a short explanation.
-  requires: [hands]
-
-- title: Prove it
-  domain: tickets
-  difficulty: 4
   duration_minutes: 25
-  instructions: >-
-    Show that the sum of any two odd numbers is even, and that the sum of the
-    first n odd numbers is n squared. A sketch of dots or a few lines of algebra
-    are both fine.
-  done_criteria: Both arguments written so someone else could follow them.
+  instructions: |-
+    The board is 9 strings of 9 characters, digits or '.' for blank. Return True if no digit repeats in any row, column or 3x3 box. The puzzle doesn't need to be solvable.
 
-- title: Palindrome checker
+    Example 1:
+      valid_sudoku(['53..7....', '6..195...', '.98....6.', '8...6...3', '4..8.3..1', '7...2...6', '.6....28.', '...419..5', '....8..79']) -> True
+    Example 2:
+      valid_sudoku(['53..7..5.', '6..195...', '.98....6.', '8...6...3', '4..8.3..1', '7...2...6', '.6....28.', '...419..5', '....8..79']) -> False
+
+    Constraints: len(board) == 9; each row has 9 characters.
+  done_criteria: All hidden tests pass.
+  function: valid_sudoku
+  signature: 'def valid_sudoku(board: list[str]) -> bool:'
+  tests:
+    - {args: [["53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1", "7...2...6", ".6....28.", "...419..5", "....8..79"]], expected: true}
+    - {args: [["53..7..5.", "6..195...", ".98....6.", "8...6...3", "4..8.3..1", "7...2...6", ".6....28.", "...419..5", "....8..79"]], expected: false}
+    - {args: [["53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1", "7...2...6", ".6....28.", "...419..5", "5...8..79"]], expected: false}
+    - {args: [[".........", ".........", ".........", ".........", ".........", ".........", ".........", ".........", "........."]], expected: true}
+    - {args: [["536.7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1", "7...2...6", ".6....28.", "...419..5", "....8..79"]], expected: false}
+    - {args: [["1........", ".1.......", ".........", ".........", ".........", ".........", ".........", ".........", "........."]], expected: false}
+
+- title: Count primes
   domain: tickets
   difficulty: 4
   duration_minutes: 30
-  instructions: >-
-    Write a function that says whether a phrase reads the same backwards,
-    ignoring spaces, punctuation and case ("Never odd or even" counts). Test it
-    on three phrases that should pass and three that shouldn't.
-  done_criteria: The function works on all six test phrases.
+  instructions: |-
+    Return how many prime numbers are strictly less than n. Aim for a sieve.
 
-- title: Small simulation
+    Example 1:
+      count_primes(10) -> 4
+    Example 2:
+      count_primes(0) -> 0
+
+    Constraints: 0 <= n <= 5 * 10^6.
+  done_criteria: All hidden tests pass.
+  function: count_primes
+  signature: 'def count_primes(n: int) -> int:'
+  tests:
+    - {args: [10], expected: 4}
+    - {args: [0], expected: 0}
+    - {args: [1], expected: 0}
+    - {args: [2], expected: 0}
+    - {args: [3], expected: 1}
+    - {args: [1000000], expected: 78498}
+
+- title: Projectile range
+  domain: tickets
+  difficulty: 4
+  duration_minutes: 30
+  instructions: |-
+    A ball is thrown on flat ground at speed m/s and angle degrees above horizontal. With g = 9.81 m/s^2 and no air resistance, the range is speed^2 * sin(2 * angle) / g. Return the range in metres; answers within 0.01 count.
+
+    Example 1:
+      projectile_range(10, 45) -> 10.19368
+    Example 2:
+      projectile_range(20, 30) -> 35.311943
+
+    Constraints: 0 <= speed <= 100; 0 <= angle <= 90.
+  done_criteria: All hidden tests pass.
+  function: projectile_range
+  signature: 'def projectile_range(speed: float, angle: float) -> float:'
+  tolerance: 0.01
+  tests:
+    - {args: [10, 45], expected: 10.19368}
+    - {args: [20, 30], expected: 35.311943}
+    - {args: [0, 45], expected: 0.0}
+    - {args: [15, 90], expected: 0.0}
+    - {args: [25, 60], expected: 55.174911}
+    - {args: [33.3, 12.5], expected: 47.771373}
+
+- title: Dice totals
   domain: tickets
   difficulty: 5
   duration_minutes: 45
-  instructions: >-
-    Write a short program that rolls two dice 10,000 times and counts each total.
-    Predict which total is most common and how often it should come up, then
-    compare with your results. No computer? Work out the exact odds of every total
-    in a table instead.
-  done_criteria: Your prediction, the counts or table, and a sentence comparing them.
+  instructions: |-
+    Roll k six-sided dice. Return a list where entry i is the number of ways to roll a total of k + i, for every total from k to 6k.
 
-- title: Explain a physics puzzle
+    Example 1:
+      dice_ways(2) -> [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1]
+    Example 2:
+      dice_ways(1) -> [1, 1, 1, 1, 1, 1]
+
+    Constraints: 1 <= k <= 20.
+  done_criteria: All hidden tests pass.
+  function: dice_ways
+  signature: 'def dice_ways(k: int) -> list[int]:'
+  tests:
+    - {args: [2], expected: [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1]}
+    - {args: [1], expected: [1, 1, 1, 1, 1, 1]}
+    - {args: [3], expected: [1, 3, 6, 10, 15, 21, 25, 27, 27, 25, 21, 15, 10, 6, 3, 1]}
+    - {args: [4], expected: [1, 4, 10, 20, 35, 56, 80, 104, 125, 140, 146, 140, 125, 104, 80, 56, 35, 20, 10, 4, 1]}
+    - {args: [10], expected: [1, 10, 55, 220, 715, 2002, 4995, 11340, 23760, 46420, 85228, 147940, 243925, 383470, 576565, 831204, 1151370, 1535040, 1972630, 2446300, 2930455, 3393610, 3801535, 4121260, 4325310, 4395456, 4325310, 4121260, 3801535, 3393610, 2930455, 2446300, 1972630, 1535040, 1151370, 831204, 576565, 383470, 243925, 147940, 85228, 46420, 23760, 11340, 4995, 2002, 715, 220, 55, 10, 1]}
+    - {args: [20], expected: [1, 20, 210, 1540, 8855, 42504, 177080, 657400, 2215875, 6876100, 19852910, 53777220, 137578715, 334221400, 774447600, 1718122120, 3661011200, 7513026360, 14883869260, 28522751000, 52968655260, 95473613400, 167259698400, 285156111240, 473630804445, 767177392956, 1212940768770, 1873365928060, 2828541558365, 4177796844360, 6040016957080, 8552094731000, 11864959484010, 16136741780240, 21522858933280, 28163138907504, 36166519159030, 45594319698440, 56443534859400, 68631941843000, 81987009993775, 96240548343540, 111030711156790, 125912390300660, 140376201624375, 153875306132440, 165858316337600, 175805662952520, 183266172913710, 187890345960720, 189456975899496, 187890345960720, 183266172913710, 175805662952520, 165858316337600, 153875306132440, 140376201624375, 125912390300660, 111030711156790, 96240548343540, 81987009993775, 68631941843000, 56443534859400, 45594319698440, 36166519159030, 28163138907504, 21522858933280, 16136741780240, 11864959484010, 8552094731000, 6040016957080, 4177796844360, 2828541558365, 1873365928060, 1212940768770, 767177392956, 473630804445, 285156111240, 167259698400, 95473613400, 52968655260, 28522751000, 14883869260, 7513026360, 3661011200, 1718122120, 774447600, 334221400, 137578715, 53777220, 19852910, 6876100, 2215875, 657400, 177080, 42504, 8855, 1540, 210, 20, 1]}
+
+- title: Peaceful queens
   domain: tickets
   difficulty: 5
-  duration_minutes: 40
-  instructions: >-
-    A boat floats in a pool carrying a heavy rock. The rock is dropped into the
-    water and sinks. Does the pool's water level rise, fall or stay the same?
-    Work it out with your reasoning written down before you look it up.
-  done_criteria: A written answer with reasoning, checked against a source.
+  duration_minutes: 45
+  instructions: |-
+    Return how many ways n queens can be placed on an n x n board so that no two share a row, column or diagonal.
+
+    Example 1:
+      queens_count(4) -> 2
+    Example 2:
+      queens_count(1) -> 1
+
+    Constraints: 1 <= n <= 9.
+  done_criteria: All hidden tests pass.
+  function: queens_count
+  signature: 'def queens_count(n: int) -> int:'
+  tests:
+    - {args: [4], expected: 2}
+    - {args: [1], expected: 1}
+    - {args: [2], expected: 0}
+    - {args: [3], expected: 0}
+    - {args: [6], expected: 4}
+    - {args: [8], expected: 92}

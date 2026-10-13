@@ -40,11 +40,41 @@ Decline task `N` and get a replacement in the same slot, usually from a differen
 (`--offline` skips AI for the replacement).
 Declines are recorded so YOUtopia can learn what suits you, and never count against you. It said it's fine. It meant it.
 
+### `youtopia starter N [--out FILE]`
+
+Every task is a small LeetCode-style problem: a story, two examples, constraints and one
+Python function to write. `starter` writes a skeleton (`task_N.py` by default) with the
+problem as comments, the function signature and a sample call. It never overwrites a file.
+
+### `youtopia submit N FILE`
+
+Runs your function against task `N`'s hidden tests, LeetCode style:
+
+```text
+Tests: ✓ ✓ ✗ ✓ ✓ ✓
+5/6 passed.
+First failing test (3):
+  Input:    yard_puddles([])
+  Expected: 0
+  Error:    IndexError: list index out of range
+```
+
+Passing every test marks the task done, counts towards your level and prints your
+encouragement. A failed attempt is recorded in your history and never counts against you,
+so fix it and submit again. `stats` shows your best score for each task.
+
+!!! warning "Your code runs on your machine"
+    `submit` runs your file in a separate Python process with a time limit (10 s), a memory
+    limit, an empty temporary folder and no API keys in its environment. That stops runaway
+    code, but it is **not a security sandbox**: the code runs with your permissions. Only
+    submit code you wrote or trust.
+
 ### `youtopia done N [--note TEXT]`
 
-Mark task `N` as complete, with an optional note for your history (or a thank-you, if
-you're feeling generous). You get a message blended from your [tone sliders](tone.md),
-with a little guilt included for everyone.
+Mark task `N` as complete without running the tests, with an optional note for your
+history (or a thank-you, if you're feeling generous). You get a message blended from your
+[tone sliders](tone.md), with a little guilt included for everyone. Completions through
+`submit` are marked as verified in `stats`; these aren't.
 
 ### `youtopia stats`
 

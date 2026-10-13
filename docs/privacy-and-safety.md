@@ -40,6 +40,19 @@ that's a review rule. For AI-written tasks it's enforced in code:
 - Your accessibility limits are always respected, and never relaxed to fill a slot.
 - Anything rejected is replaced by a safe built-in task.
 
+## Running your solutions
+
+`youtopia submit` runs the Python file you give it, against the task's hidden tests. It runs
+in a separate process with a 10-second time limit, a memory limit, an empty temporary
+folder and none of your API keys in its environment, so runaway code can't hang YOUtopia or
+read your keys from the environment. It is **not a security sandbox**: the code runs with
+your permissions, like any script you run yourself. Only submit code you wrote or trust.
+
+Problems written by AI never run as code. Their function signatures are checked against a
+strict pattern (names and type hints only), and their text only ever appears as comments in
+starter files. Their hidden tests are plain data, but they aren't verified, so an AI-written
+test can occasionally be wrong; `submit` says so, and you can swap the task.
+
 ## Your terminal is safe too
 
 Text from a model, or anything you type, is cleaned of terminal escape codes and

@@ -24,7 +24,10 @@ youtopia/
   daily.py          # daily loop: today, more, swap, done
   stats.py          # levels, history, streaks, milestones
   generator.py      # task generation: AI first, templates fallback
-  templates.yaml    # built-in task library
+  templates.yaml    # built-in library: 70 LeetCode-style problems with hidden tests
+  problems.py       # Problem (function, signature, tests) validation; starter files
+  judge.py          # run a solution against hidden tests in a limited subprocess
+  judge_harness.py  # the child process judge.py runs (stdlib only)
   difficulty.py     # adaptive difficulty rules
   support.py        # static help-now resources
   config.py         # ~/.youtopia/config.toml
@@ -48,7 +51,9 @@ zensical.toml
 | `youtopia today [--offline]` | Show today's tasks (a set of 3 to start); generate if none exist for today. |
 | `youtopia more [N]` | Add N more tasks to today's list. No daily cap. |
 | `youtopia swap <n>` | Decline task n, record the decline, offer a replacement. |
-| `youtopia done <n> [--note TEXT]` | Mark complete, update skill level, print encouragement. |
+| `youtopia starter <n> [--out FILE]` | Write a solution skeleton for task n. |
+| `youtopia submit <n> <file>` | Run the solution against task n's hidden tests; all passing completes it. |
+| `youtopia done <n> [--note TEXT]` | Mark complete without tests (unverified), update skill level, print encouragement. |
 | `youtopia stats` | Skill level per domain, history, milestones. |
 | `youtopia profile` | View/edit profile, including tone sliders. |
 | `youtopia help-now` | Print support and crisis resources. |
@@ -60,13 +65,16 @@ zensical.toml
 
 - **Profile**: interests, minutes_per_day, accessibility_limits, preferred_challenge, tone sliders `sincerity`, `humor`, `sarcasm`, `rudeness`, each 0–5 (default 4 / 1 / 0 / 0)
 - **SkillLevel**: domain, level 1–5, recent_successes, recent_declines, recent_misses, last_evaluated
-- **Task**: title, instructions, domain, difficulty 1–5, duration_minutes, done_criteria, offered_on, slot, status (`offered` | `done` | `declined`), source (`ai` | `template`), declined_at
+- **Task**: title, instructions, domain, difficulty 1–5, duration_minutes, done_criteria, offered_on, slot, status (`offered` | `done` | `declined`), source (`ai` | `template`), declined_at, problem (function, signature, tests, compare, tolerance)
+- **Submission**: task_id, submitted_at, passed, total
 - **Completion**: task_id, completed_at, note
 
 Domains, named for the grunt work they are: labour, production, chores, outreach, training, caretaking, tickets (coding, maths and science problems). Old names (physical, creative, practical, social, learning, caring, problems) are accepted as input and migrated in stored data.
 
 ## Rules that must hold
 
+- Every task is a LeetCode-style problem themed on its domain: statement, two examples, constraints, one Python function, hidden tests. Every template has a reference solution in `tests/reference_solutions.py`, and tests prove its hidden tests pass with it.
+- `submit` evaluates by running hidden tests; passing all completes the task. Failed attempts are recorded but never penalised.
 - Tasks fit the user's time and accessibility limits; never physically, legally or financially risky.
 - Rotate domains across the daily set.
 - Difficulty rises after consistent success and drops after repeated declines or misses. Thresholds live in `difficulty.py` as named constants.
@@ -83,6 +91,8 @@ Domains, named for the grunt work they are: labour, production, chores, outreach
 - Strip escape sequences and escape Rich markup in all AI and user text before terminal output.
 - Validate and safety-filter all AI output; anything that fails is replaced by a template.
 - Remote provider URLs must use HTTPS; plain HTTP only for localhost.
+- Never run AI-written code. AI problem signatures must match `problems.SIGNATURE_RE` (names and type hints only), and AI text only appears as comments in starter files.
+- The judge runs user code with `-I`, an empty temp dir, a minimal environment (no API keys) and time/memory limits. It is not a sandbox, and the docs say so.
 - CI workflows use least-privilege permissions and SHA-pinned actions.
 
 ## Milestones

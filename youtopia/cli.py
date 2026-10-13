@@ -1,8 +1,10 @@
 """Typer app: parses input and renders output. Business logic lives in other modules."""
 
+import json
 import time
 from collections.abc import Callable
 from datetime import date
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -11,7 +13,7 @@ from rich.panel import Panel
 from rich.table import Table
 from sqlmodel import Session
 
-from youtopia import config, daily, encouragement, generator, secrets, stats, support
+from youtopia import config, daily, encouragement, generator, judge, secrets, stats, support
 from youtopia import profile as profiles
 from youtopia.db import session_scope
 from youtopia.difficulty import LevelChange
@@ -281,6 +283,8 @@ def _render_task(task: Task) -> None:
     done = task.status == TaskStatus.DONE
     meta = f"{task.domain} · {_level_dots(task.difficulty)} · {task.duration_minutes} min"
     body = f"{safe(task.instructions)}\n\n[dim]Done when:[/dim] {safe(task.done_criteria)}"
+    if task.problem:
+        body += f"\n[dim]Write:[/dim] [bold]{safe(task.problem['signature'])}[/bold]"
     title = f"{task.slot}. {safe(task.title)}" + (" [green]✓ done[/green]" if done else "")
     console.print(
         Panel(
@@ -318,7 +322,9 @@ def today(offline: Annotated[bool, typer.Option(help=OFFLINE_HELP)] = False) -> 
     console.print(
         "[dim]Finished one? [bold]youtopia done <n>[/bold]. "
         "Not feeling it? [bold]youtopia swap <n>[/bold]. "
-        "Want extra? [bold]youtopia more \\[N][/bold].[/dim]"
+        "Want extra? [bold]youtopia more \\[N][/bold].\n"
+        "Solve one: [bold]youtopia starter <n>[/bold], then "
+        "[bold]youtopia submit <n> <file>[/bold].[/dim]"
     )
 
 
@@ -388,6 +394,11 @@ def done(
             session, profile, result.task, _today(), ai=_load_ai(offline)
         )
         console.print(f'[green]✓[/green] "{safe(result.task.title)}" done. {safe(message)}')
+        if result.task.problem:
+            console.print(
+                f"[dim]Want it checked? [bold]youtopia submit {number} <file>[/bold] runs "
+                "the hidden tests.[/dim]"
+            )
         if result.level_change:
             _render_level_change(result.level_change)
 
@@ -414,15 +425,22 @@ def show_stats() -> None:
         f"current streak {result.current_streak} · best {result.best_streak}"
     )
     console.print(f"[dim]Streaks forgive up to {stats.STREAK_GRACE_DAYS} days off in a row.[/dim]")
+    if result.solved_by_tests:
+        console.print(
+            f"{_plural(result.solved_by_tests, 'task')} solved with every hidden test passing."
+        )
 
     if result.history:
         history = Table(title="Recent", title_justify="left")
         history.add_column("Date")
         history.add_column("Task")
         history.add_column("Domain")
+        history.add_column("Tests", justify="right")
         history.add_column("Note")
         for h in result.history:
-            history.add_row(h.day.isoformat(), safe(h.title), h.domain, safe(h.note or ""))
+            history.add_row(
+                h.day.isoformat(), safe(h.title), h.domain, h.score or "-", safe(h.note or "")
+            )
         console.print(history)
 
     if result.milestones:
@@ -614,3 +632,93 @@ def ai_test() -> None:
         console.print(
             "[dim]AI is off for tasks. Turn it on: youtopia config set ai.enabled true[/dim]"
         )
+
+
+# --- solving problems ------------------------------------------------------------
+
+
+def _call(function: str, args: list) -> str:
+    return f"{function}({', '.join(json.dumps(a) for a in args)})"
+
+
+def _render_verdict(result: daily.SubmitResult) -> None:
+    verdict, problem = result.verdict, result.task.problem
+    if verdict.load_error:
+        console.print("[red]Your solution couldn't be loaded:[/red]")
+        console.print(f"[dim]{safe(verdict.load_error)}[/dim]")
+        return
+    marks = " ".join("[green]✓[/green]" if c.passed else "[red]✗[/red]" for c in verdict.cases)
+    console.print(f"Tests: {marks}")
+    if verdict.accepted:
+        console.print(
+            f"[bold green]Accepted:[/bold green] {verdict.passed}/{verdict.total} passed."
+        )
+    else:
+        console.print(f"[bold yellow]{verdict.passed}/{verdict.total} passed.[/bold yellow]")
+        failure = verdict.first_failure
+        console.print(f"[dim]First failing test ({failure.number}):[/dim]")
+        console.print(f"  Input:    {safe(_call(problem['function'], failure.args))}")
+        console.print(f"  Expected: {safe(json.dumps(failure.expected))}")
+        if failure.error:
+            console.print(f"  Error:    {safe(failure.error)}")
+        else:
+            console.print(f"  Got:      {safe(failure.got)}")
+        console.print("[dim]Fix it and submit again. Attempts never count against you.[/dim]")
+    if result.task.source == "ai":
+        console.print(
+            "[dim]These tests were written by AI and aren't verified. If one looks wrong, "
+            "swap the task.[/dim]"
+        )
+
+
+@app.command()
+def submit(
+    number: Annotated[int, typer.Argument(help="Task number from `youtopia today`.")],
+    solution: Annotated[Path, typer.Argument(help="Your Python file.")],
+    offline: Annotated[bool, typer.Option(help="Don't use AI to word the message.")] = False,
+) -> None:
+    """Run your solution against task N's hidden tests. All passing marks it done."""
+    with session_scope() as session:
+        profile = _require_profile(session)
+        try:
+            result = daily.submit_task(session, _today(), number, solution)
+        except (daily.DailyError, judge.JudgeError) as err:
+            console.print(f"[yellow]{safe(err)}[/yellow]")
+            raise typer.Exit(code=1) from None
+        _render_verdict(result)
+        if result.completion:
+            message = encouragement.done_message(
+                session, profile, result.task, _today(), ai=_load_ai(offline)
+            )
+            title = safe(result.task.title)
+            console.print(f'[green]✓[/green] "{title}" done. {safe(message)}')
+            if result.completion.level_change:
+                _render_level_change(result.completion.level_change)
+
+
+@app.command()
+def starter(
+    number: Annotated[int, typer.Argument(help="Task number from `youtopia today`.")],
+    out: Annotated[
+        Path | None, typer.Option(help="Where to write it (default: task_<n>.py).")
+    ] = None,
+) -> None:
+    """Write a solution skeleton for task N, with the signature and an example."""
+    with session_scope() as session:
+        _require_profile(session)
+        try:
+            _, source = daily.starter_for(session, _today(), number)
+        except daily.DailyError as err:
+            console.print(f"[yellow]{safe(err)}[/yellow]")
+            raise typer.Exit(code=1) from None
+    path = out or Path(f"task_{number}.py")
+    try:
+        with path.open("x", encoding="utf-8") as f:
+            f.write(source)
+    except FileExistsError:
+        console.print(f"[yellow]{safe(path)} already exists.[/yellow] Pick another with --out.")
+        raise typer.Exit(code=1) from None
+    console.print(
+        f"Wrote [bold]{safe(path)}[/bold]. When it's ready: "
+        f"[bold]youtopia submit {number} {safe(path)}[/bold]"
+    )

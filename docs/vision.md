@@ -56,6 +56,8 @@ A good day isn't measured in output. It's measured in meaning. (Your AI handles 
 
 - Tasks span seven departments of honest grunt work: **labour, production, chores,
   outreach, training, caretaking and tickets** (coding, maths and science problems).
+- Every task is a small **LeetCode-style problem** themed on its department: a story,
+  examples, constraints and one function to write, checked by hidden tests.
 - Each day's set rotates across them, so no single area takes over.
 - Each day opens with **three** tasks. Want more? `youtopia more` has no daily limit.
 
