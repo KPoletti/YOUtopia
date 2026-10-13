@@ -1,0 +1,562 @@
+# Built-in task library, used offline and whenever AI generation is unavailable.
+#
+# Every task must be safe: nothing physically, legally or financially risky.
+# `requires` lists abilities or conditions the task depends on. A task is skipped
+# when the user's accessibility limits rule one out. Known tags:
+#   standing, walking, kneeling, lifting, exertion, hands, vision, hearing, speaking, going_out
+
+# --- physical ---------------------------------------------------------------
+- title: Shoulder and neck reset
+  domain: physical
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Sitting or standing, roll your shoulders slowly ten times backwards and ten
+    times forwards, then tilt your head gently towards each shoulder for five breaths.
+    Stop any movement that feels uncomfortable.
+  done_criteria: You finished one full round of rolls and tilts.
+
+- title: Five-minute stroll
+  domain: physical
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Walk at an easy pace for five minutes, indoors or out. Notice three things you
+    hadn't noticed before.
+  done_criteria: You walked for five minutes and can name three things you noticed.
+  requires: [walking]
+
+- title: Seated strength set
+  domain: physical
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    In a sturdy chair, do two rounds of: ten arm raises (holding a water bottle if
+    you like), ten seated knee lifts per leg, and ten seated torso twists.
+  done_criteria: You completed two rounds.
+
+- title: Walk around the block
+  domain: physical
+  difficulty: 2
+  duration_minutes: 15
+  instructions: >-
+    Head out for a fifteen-minute walk on a familiar, safe route. Keep a pace where
+    you could still hold a conversation.
+  done_criteria: You were out walking for fifteen minutes.
+  requires: [walking, going_out]
+
+- title: Kitchen-counter circuit
+  domain: physical
+  difficulty: 3
+  duration_minutes: 15
+  instructions: >-
+    Do three rounds of: ten wall or counter push-ups, ten sit-to-stands from a chair,
+    and fifteen calf raises holding the counter for balance. Rest a minute between rounds.
+  done_criteria: Three rounds done.
+  requires: [standing, exertion]
+
+- title: Gentle follow-along stretch
+  domain: physical
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Find a free beginner or chair-based stretching or yoga session (video or audio)
+    of about twenty minutes and follow it through. Skip any pose that doesn't suit your body.
+  done_criteria: You followed the session to the end.
+
+- title: Brisk walk with intervals
+  domain: physical
+  difficulty: 4
+  duration_minutes: 25
+  instructions: >-
+    Walk for twenty-five minutes, alternating two minutes at an easy pace with one
+    minute noticeably quicker. Stay on paths you know well.
+  done_criteria: You completed twenty-five minutes with at least five quicker intervals.
+  requires: [walking, going_out, exertion]
+
+- title: Design your own mobility routine
+  domain: physical
+  difficulty: 4
+  duration_minutes: 20
+  instructions: >-
+    Choose eight gentle movements that suit your body (stretches, rolls, reaches,
+    twists), write them down in order, and do the routine twice.
+  done_criteria: Your routine is written down and you did it twice.
+
+- title: Thirty-minute workout of your choice
+  domain: physical
+  difficulty: 5
+  duration_minutes: 30
+  instructions: >-
+    Do thirty minutes of an activity you enjoy (dance, a workout video, cycling,
+    swimming), at an effort you already know is safe for you.
+  done_criteria: You kept moving for thirty minutes.
+  requires: [exertion]
+
+- title: Active outing
+  domain: physical
+  difficulty: 5
+  duration_minutes: 45
+  instructions: >-
+    Plan and take a forty-five-minute walk to somewhere you rarely go: a park, a
+    market, a viewpoint. Bring water and keep to public paths.
+  done_criteria: You reached your destination and made it home.
+  requires: [walking, going_out, exertion]
+
+# --- creative ---------------------------------------------------------------
+- title: Draw the nearest object
+  domain: creative
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Pick the closest object to you and draw it in five minutes. Wobbly lines count.
+  done_criteria: One drawing exists.
+  requires: [hands, vision]
+
+- title: Six-word story
+  domain: creative
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Write or record a complete story in exactly six words. Make three attempts and
+    pick your favourite.
+  done_criteria: You have a favourite six-word story.
+
+- title: Haiku about today
+  domain: creative
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    Write a haiku (five, seven, then five syllables) about something that happened today.
+  done_criteria: Your haiku is written or recorded.
+
+- title: Three textures
+  domain: creative
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    Photograph three interesting textures around you: rough, smooth and something
+    in between. Frame each one carefully.
+  done_criteria: You have three texture photos you're happy with.
+  requires: [vision]
+
+- title: One-page story
+  domain: creative
+  difficulty: 3
+  duration_minutes: 25
+  instructions: >-
+    Write a story of about one page that starts with the line "Nobody expected the
+    kettle to answer." Give it a clear ending.
+  done_criteria: The story has a beginning, a middle and an end.
+
+- title: A playlist that tells a story
+  domain: creative
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Build a playlist of six to eight songs that tells a story from first track to
+    last. Give it a title.
+  done_criteria: Your playlist is titled and in order.
+  requires: [hearing]
+
+- title: One scene, three ways
+  domain: creative
+  difficulty: 4
+  duration_minutes: 30
+  instructions: >-
+    Sketch the same scene three times: in pencil detail, in five bold lines, and
+    from memory with your eyes closed.
+  done_criteria: You have three versions of the scene.
+  requires: [hands, vision]
+
+- title: New words to an old tune
+  domain: creative
+  difficulty: 4
+  duration_minutes: 25
+  instructions: >-
+    Pick a tune everyone knows and write two new verses for it about something in
+    your life this week.
+  done_criteria: Two verses that fit the tune.
+
+- title: Make a mini zine
+  domain: creative
+  difficulty: 5
+  duration_minutes: 45
+  instructions: >-
+    Fold one sheet of paper into an eight-page mini zine and fill every page with
+    drawings or words on a single theme.
+  done_criteria: All eight pages are filled.
+  requires: [hands, vision]
+
+- title: Twist-ending short story
+  domain: creative
+  difficulty: 5
+  duration_minutes: 45
+  instructions: >-
+    Write a short story of about a thousand words with an ending that reframes
+    everything before it. Read it back once and revise.
+  done_criteria: A revised story with a twist.
+
+# --- practical ---------------------------------------------------------------
+- title: Clear one surface
+  domain: practical
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Choose one surface (a table, shelf or bedside) and clear it completely, putting
+    each item back where it belongs.
+  done_criteria: The surface is clear.
+
+- title: Digital tidy
+  domain: practical
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Delete or archive twenty old emails, screenshots or photos you no longer need.
+  done_criteria: Twenty items gone.
+
+- title: Plan tomorrow's meals
+  domain: practical
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    Decide what you'll eat tomorrow and check you have the ingredients. Note anything
+    you need to pick up.
+  done_criteria: Tomorrow's meals are decided.
+
+- title: Sort one drawer
+  domain: practical
+  difficulty: 2
+  duration_minutes: 15
+  instructions: >-
+    Empty one drawer, wipe it out, and put back only what belongs there.
+  done_criteria: The drawer is sorted.
+  requires: [hands]
+
+- title: Cupboard cook-up
+  domain: practical
+  difficulty: 3
+  duration_minutes: 30
+  instructions: >-
+    Cook a dish you haven't made before using only what's already in your kitchen.
+    Look up a recipe if you like.
+  done_criteria: You cooked and tasted something new.
+  requires: [standing, hands]
+
+- title: Mend one small thing
+  domain: practical
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Fix something small that's been bugging you: sew on a button, tighten a loose
+    cupboard handle, glue a chipped ornament. Nothing electrical or gas-related.
+  done_criteria: The thing is fixed.
+  requires: [hands]
+
+- title: Spending snapshot
+  domain: practical
+  difficulty: 4
+  duration_minutes: 30
+  instructions: >-
+    List your regular monthly costs and subscriptions in one place. Mark any you'd
+    like to look into later. No decisions needed today.
+  done_criteria: Your list of regular costs is complete.
+
+- title: Deep clean one zone
+  domain: practical
+  difficulty: 4
+  duration_minutes: 30
+  instructions: >-
+    Pick one zone (the fridge, the bathroom sink, the hallway) and clean it
+    thoroughly from top to bottom.
+  done_criteria: The zone is properly clean.
+  requires: [standing]
+
+- title: Batch cook
+  domain: practical
+  difficulty: 5
+  duration_minutes: 60
+  instructions: >-
+    Cook a dish that makes at least three portions and store the extras for the
+    coming days.
+  done_criteria: Three or more portions are cooked and stored.
+  requires: [standing, hands]
+
+- title: Household info sheet
+  domain: practical
+  difficulty: 5
+  duration_minutes: 40
+  instructions: >-
+    Write one page of household essentials: key contacts, where the water stop tap
+    and fuse box are, bin days, and who to call for repairs.
+  done_criteria: The sheet is written and somewhere easy to find.
+
+# --- social ---------------------------------------------------------------
+- title: Send a thank-you
+  domain: social
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Send a short message thanking someone for something specific they did, recently
+    or long ago.
+  done_criteria: The message is sent.
+
+- title: A sincere compliment
+  domain: social
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Tell someone something you genuinely appreciate about them, in person or by message.
+  done_criteria: You gave the compliment.
+
+- title: Voice hello
+  domain: social
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    Call or send a voice message to a friend or relative just to say hello and ask
+    how they are.
+  done_criteria: You spoke or left a message.
+  requires: [speaking, hearing]
+
+- title: Share a recommendation
+  domain: social
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    Recommend a book, song, show or recipe to someone who'd enjoy it, and say why
+    you thought of them.
+  done_criteria: The recommendation is sent.
+
+- title: Ask for a story
+  domain: social
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Ask someone about a memorable moment in their life and really listen. Ask at
+    least two follow-up questions.
+  done_criteria: You heard the story and asked two follow-ups.
+
+- title: Write a real letter
+  domain: social
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Handwrite a letter or card to someone and post or deliver it.
+  done_criteria: The letter is on its way.
+  requires: [hands]
+
+- title: Plan a get-together
+  domain: social
+  difficulty: 4
+  duration_minutes: 25
+  instructions: >-
+    Invite one or more people to a simple get-together (coffee, a walk, a video
+    call) and agree a date.
+  done_criteria: A date is set.
+
+- title: Join a group conversation
+  domain: social
+  difficulty: 4
+  duration_minutes: 30
+  instructions: >-
+    Take part in a community you're curious about, online or local: post a helpful
+    reply, ask a question, or attend a meet-up.
+  done_criteria: You contributed at least once.
+
+- title: Host a small gathering
+  domain: social
+  difficulty: 5
+  duration_minutes: 60
+  instructions: >-
+    Host two or more people for an hour, in person or on a video call. Plan one
+    small thing to do together.
+  done_criteria: The gathering happened.
+
+- title: Reconnect
+  domain: social
+  difficulty: 5
+  duration_minutes: 30
+  instructions: >-
+    Reach out to someone you've lost touch with. Mention a memory you share and
+    suggest catching up properly.
+  done_criteria: You reached out with a shared memory.
+
+# --- learning ---------------------------------------------------------------
+- title: Five new words
+  domain: learning
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Learn five words in a language you don't speak. Test yourself at the end.
+  done_criteria: You can recall all five words.
+
+- title: One encyclopedia article
+  domain: learning
+  difficulty: 1
+  duration_minutes: 10
+  instructions: >-
+    Read or listen to one encyclopedia article on a topic you know nothing about.
+    Write down one surprising fact.
+  done_criteria: One surprising fact noted.
+
+- title: Short talk, three takeaways
+  domain: learning
+  difficulty: 2
+  duration_minutes: 15
+  instructions: >-
+    Watch or listen to a talk or lecture under fifteen minutes and note three things
+    you learned.
+  done_criteria: Three takeaways written down.
+
+- title: Learn a card trick
+  domain: learning
+  difficulty: 2
+  duration_minutes: 15
+  instructions: >-
+    Learn one simple card trick and practise it until you can perform it smoothly
+    three times in a row.
+  done_criteria: Three clean performances in a row.
+  requires: [hands]
+
+- title: Teach it back
+  domain: learning
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Pick something you understand well and explain it in about two hundred words as
+    if to a curious twelve-year-old.
+  done_criteria: Your explanation is written or recorded.
+
+- title: Puzzle set
+  domain: learning
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Solve five logic puzzles, chess puzzles or crossword clues a notch harder than usual.
+  done_criteria: Five puzzles attempted, at least three solved.
+
+- title: Free online lesson
+  domain: learning
+  difficulty: 4
+  duration_minutes: 30
+  instructions: >-
+    Complete one lesson of a free online course in a subject you've always wondered about.
+  done_criteria: The lesson is complete.
+
+- title: Memorise a short poem
+  domain: learning
+  difficulty: 4
+  duration_minutes: 25
+  instructions: >-
+    Memorise a poem of eight to twelve lines and recite it without looking.
+  done_criteria: One full recitation from memory.
+
+- title: Research and explain
+  domain: learning
+  difficulty: 5
+  duration_minutes: 45
+  instructions: >-
+    Research a question you've wondered about and write a one-page explainer with
+    at least two sources.
+  done_criteria: A one-page explainer with sources.
+
+- title: Tiny project, new skill
+  domain: learning
+  difficulty: 5
+  duration_minutes: 45
+  instructions: >-
+    Use a skill you've only just started learning to make one small finished thing:
+    a sentence in a new language, a short script, a simple knot, a sketch technique.
+  done_criteria: You have a finished small thing.
+
+# --- caring ---------------------------------------------------------------
+- title: Tend something living
+  domain: caring
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Water a plant, refresh a pet's water, or put out water for birds. Take a moment
+    to check how it's doing.
+  done_criteria: Something living is looked after.
+
+- title: A mindful drink
+  domain: caring
+  difficulty: 1
+  duration_minutes: 5
+  instructions: >-
+    Make a drink for someone else, or for yourself, and enjoy it without a screen.
+  done_criteria: The drink was made and enjoyed.
+
+- title: Check in on someone
+  domain: caring
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    Check in on a neighbour, friend or relative who might appreciate it. Ask if
+    there's anything small you can help with.
+  done_criteria: You checked in.
+
+- title: Ten minutes for you
+  domain: caring
+  difficulty: 2
+  duration_minutes: 10
+  instructions: >-
+    Spend ten minutes doing something restful purely for yourself: a bath, music,
+    sitting in the sun, a nap.
+  done_criteria: Ten restful minutes taken.
+
+- title: Bake or cook to share
+  domain: caring
+  difficulty: 3
+  duration_minutes: 30
+  instructions: >-
+    Make something simple to share with someone else, and share it.
+  done_criteria: Someone else got some.
+  requires: [standing, hands]
+
+- title: Tidy your street
+  domain: caring
+  difficulty: 3
+  duration_minutes: 20
+  instructions: >-
+    Spend twenty minutes picking up litter near your home, wearing gloves. Leave
+    anything sharp or hazardous alone.
+  done_criteria: A bag of litter collected.
+  requires: [walking, going_out, hands]
+
+- title: Help with a put-off task
+  domain: caring
+  difficulty: 4
+  duration_minutes: 40
+  instructions: >-
+    Offer to help someone with a small job they've been putting off (sorting,
+    writing, setting up a device), and do it together.
+  done_criteria: The job is done or properly started.
+
+- title: Care package
+  domain: caring
+  difficulty: 4
+  duration_minutes: 30
+  instructions: >-
+    Put together a small care package for someone going through a hard time: a
+    note plus two or three small things you already have.
+  done_criteria: The package is ready to give.
+
+- title: Volunteer for an hour
+  domain: caring
+  difficulty: 5
+  duration_minutes: 60
+  instructions: >-
+    Give an hour to a local cause (a food bank, community garden, library or
+    charity shop), in person or remotely.
+  done_criteria: One hour volunteered.
+
+- title: Organise a kindness project
+  domain: caring
+  difficulty: 5
+  duration_minutes: 45
+  instructions: >-
+    Get two or more people to join you in a small kindness, such as writing cards for a
+    care home or collecting donations, and set it in motion.
+  done_criteria: At least two others have agreed to join.
