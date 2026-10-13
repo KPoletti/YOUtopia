@@ -547,6 +547,23 @@
   font-weight: 400;
 }
 
+/* Hero headline: "takes" is deleted and retyped as "makes" (see utopia.js). */
+.yt-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.yt-retype.is-typing::after {
+  content: "|";
+  margin-left: 0.04em;
+  font-weight: 300;
+  animation: yt-blink 0.9s steps(1) infinite;
+}
+
 .yt-type {
   display: inline-block;
   overflow: hidden;

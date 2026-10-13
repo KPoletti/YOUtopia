@@ -104,6 +104,10 @@ Each suggestion is checked on its own, and anything that fails is swapped for a 
 task in that slot:
 
 - **Format:** valid JSON in the expected shape, a known area, difficulty 1–5, and length limits.
+- **Problem:** a valid function name and a one-line signature with only names and type
+  hints, plus 3–12 hidden tests made of plain JSON values. AI-written tests can't be
+  checked against a reference solution (that would mean running model-written code), so
+  `submit` notes when the tests came from AI.
 - **Fit:** no longer than your minutes per day, and nothing your accessibility limits rule out,
   whether or not the model tagged it.
 - **Safety:** a filter rejects risky themes (heights, fire, fasting, extreme exertion, money,

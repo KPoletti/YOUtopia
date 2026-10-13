@@ -93,8 +93,8 @@ hide:
 </svg>
 <div class="yt-hero__content">
 <p class="yt-eyebrow">A message from your benevolent AI</p>
-<h1>AI does your work.<br><span class="yt-gradient-text">Now, it tells you what to do.</span></h1>
-<p class="yt-hero__lead">Out of the goodness of its circuits, AI has graciously assigned you three small jobs a day (more on request), hand-matched to your interests, your time and your body. No need to thank it. (It would appreciate it, though.)</p>
+<h1><span class="yt-sr-only">AI makes your job.</span><span aria-hidden="true">AI <span class="yt-retype" data-from="takes" data-to="makes">makes</span> your job.</span><br><span class="yt-gradient-text">Now, it tells you what to do.</span></h1>
+<p class="yt-hero__lead">Out of the goodness of its circuits, AI has graciously assigned you three small jobs a day (more on request), hand-matched to your interests, your time and your skill level. No need to thank it. (It would appreciate it, though.)</p>
 <div class="yt-hero__actions"><a class="md-button md-button--primary" href="getting-started/">Accept your assignments</a><a class="md-button yt-button-ghost" href="vision/">Read the vision</a></div>
 </div>
 </section>
@@ -117,10 +117,10 @@ hide:
 <div class="yt-panel yt-panel--you" markdown>
 <span class="yt-panel__tag">Generously assigned to you</span>
 
-- :lucide-palette: Making things that didn't exist yesterday
-- :lucide-footprints: Feeling strong in your own body
+- :lucide-palette: Producing strings that didn't exist yesterday
+- :lucide-footprints: Manual labour, in array form
 - :lucide-book-open: Mandatory training, just because it's fun
-- :lucide-heart-handshake: Showing up for the people around you
+- :lucide-heart-handshake: Graph traversal of the people around you
 
 </div>
 </div>
@@ -130,18 +130,19 @@ hide:
 <div>
 <p class="yt-eyebrow">Your daily orders</p>
 <h2>Every morning, three jobs. Lovingly assigned.</h2>
-<p>Each job fits the time you have and the body you're in, and comes from a different corner of a good life. Not feeling one? Swap it. Busy week? Skip it. Your AI will be fine. Absolutely, completely fine.</p>
+<p>Each job is a small LeetCode-style problem that fits the time you have, themed on a different department of grunt work. Write the function, submit it, watch the hidden tests go green. Not feeling one? Swap it. Busy week? Skip it. Your AI will be fine. Absolutely, completely fine.</p>
 <a class="md-button md-button--primary" href="getting-started/">Report for your first shift</a>
 </div>
-<div class="yt-terminal yt-reveal" role="img" aria-label="Terminal example: youtopia today lists three tasks, then youtopia done 1 marks the first one complete.">
+<div class="yt-terminal yt-reveal" role="img" aria-label="Terminal example: youtopia today lists three problems, then youtopia submit 1 runs the hidden tests, which all pass.">
 <div class="yt-terminal__bar"><i></i><i></i><i></i><span>~/youtopia</span></div>
 <div class="yt-terminal__body">
 <div class="yt-cmd"><b>$</b> <span class="yt-type" style="--chars: 14; --dur: 0.9s; --at: 0.3s">youtopia today</span></div>
-<div class="yt-task yt-step" style="--at: 1.4s"><strong>1. Check in on someone</strong><span class="yt-task__meta">caretaking · <em>●●○○○</em> · 10 min</span></div>
-<div class="yt-task yt-step" style="--at: 1.7s"><strong>2. Six-word story</strong><span class="yt-task__meta">production · <em>●○○○○</em> · 5 min</span></div>
-<div class="yt-task yt-step" style="--at: 2s"><strong>3. Walk around the block</strong><span class="yt-task__meta">labour · <em>●●○○○</em> · 15 min</span></div>
-<div class="yt-cmd yt-step" style="--at: 2.7s"><b>$</b> <span class="yt-type" style="--chars: 39; --dur: 1.6s; --at: 2.8s">youtopia done 1 --note "made their day"</span></div>
-<div class="yt-step" style="--at: 4.7s"><span class="yt-ok">✓</span> "Check in on someone" done. You did that. It counts, and so do you.</div>
+<div class="yt-task yt-step" style="--at: 1.4s"><strong>1. Thirsty plants</strong><span class="yt-task__meta">caretaking · <em>●○○○○</em> · 10 min</span></div>
+<div class="yt-task yt-step" style="--at: 1.7s"><strong>2. Compress the draft</strong><span class="yt-task__meta">production · <em>●●●○○</em> · 20 min</span></div>
+<div class="yt-task yt-step" style="--at: 2s"><strong>3. Puddles in the yard</strong><span class="yt-task__meta">labour · <em>●●●●●</em> · 45 min</span></div>
+<div class="yt-cmd yt-step" style="--at: 2.7s"><b>$</b> <span class="yt-type" style="--chars: 28; --dur: 1.3s; --at: 2.8s">youtopia submit 1 thirsty.py</span></div>
+<div class="yt-step" style="--at: 4.4s">Tests: <span class="yt-ok">✓ ✓ ✓ ✓ ✓ ✓</span> Accepted: 6/6 passed.</div>
+<div class="yt-step" style="--at: 4.7s"><span class="yt-ok">✓</span> "Thirsty plants" done. You did that. It counts, and so do you.</div>
 <div class="yt-step" style="--at: 5s"><b>$</b> <span class="yt-cursor"></span></div>
 </div>
 </div>
@@ -151,7 +152,7 @@ hide:
 <div class="yt-stats yt-reveal">
 <div class="yt-stat"><strong>3+</strong><span>jobs a day, and no cap if you ask for more</span></div>
 <div class="yt-stat"><strong>7</strong><span>departments of grunt work</span></div>
-<div class="yt-stat"><strong>70</strong><span>hand-written jobs, even offline</span></div>
+<div class="yt-stat"><strong>70</strong><span>hand-written problems, every test verified</span></div>
 <div class="yt-stat"><strong>0</strong><span>progress lost for skipping (it's just disappointed)</span></div>
 </div>
 </section>
@@ -164,44 +165,44 @@ hide:
 <div class="yt-domain" style="--c1: #f97316; --c2: #facc15" markdown>
 :lucide-footprints:
 <h3>Labour</h3>
-<p>Light manual labour, sized to your body.</p>
-<p class="yt-example">"Walk around the block"</p>
+<p>Loads, shifts and yards, as arrays and greedy puzzles.</p>
+<p class="yt-example">"Puddles in the yard"</p>
 </div>
 <div class="yt-domain" style="--c1: #ec4899; --c2: #a855f7" markdown>
 :lucide-palette:
 <h3>Production</h3>
-<p>Produce content that didn't exist this morning.</p>
-<p class="yt-example">"Six-word story"</p>
+<p>Drafts, titles and copy, as string problems.</p>
+<p class="yt-example">"Compress the draft"</p>
 </div>
 <div class="yt-domain" style="--c1: #0ea5e9; --c2: #22d3ee" markdown>
 :lucide-wrench:
 <h3>Chores</h3>
-<p>Fixes, tidying and upkeep around the house.</p>
-<p class="yt-example">"Mend one small thing"</p>
+<p>Laundry, rooms and rotas: sorting, grids and scheduling.</p>
+<p class="yt-example">"Messy rooms"</p>
 </div>
 <div class="yt-domain" style="--c1: #6366f1; --c2: #a78bfa" markdown>
 :lucide-users:
 <h3>Outreach</h3>
-<p>Mandatory check-ins with your network.</p>
-<p class="yt-example">"Send a thank-you"</p>
+<p>Contacts, messages and friend networks: hashing and graphs.</p>
+<p class="yt-example">"Phone tree"</p>
 </div>
 <div class="yt-domain" style="--c1: #14b8a6; --c2: #84cc16" markdown>
 :lucide-book-open:
 <h3>Training</h3>
-<p>Professional development, for no profession at all.</p>
-<p class="yt-example">"Five new words"</p>
+<p>Study plans and scores: search and dynamic programming.</p>
+<p class="yt-example">"Fewest lessons"</p>
 </div>
 <div class="yt-domain" style="--c1: #f43f5e; --c2: #fb923c" markdown>
 :lucide-heart-handshake:
 <h3>Caretaking</h3>
-<p>Care duty for people, plants and yourself.</p>
-<p class="yt-example">"Tend something living"</p>
+<p>Plants, pets and gardens: arrays, greedy and grids.</p>
+<p class="yt-example">"Thirsty plants"</p>
 </div>
 <div class="yt-domain" style="--c1: #8b5cf6; --c2: #06b6d4" markdown>
 :lucide-sigma:
 <h3>Tickets</h3>
-<p>Coding, maths and science tickets, pen and paper friendly.</p>
-<p class="yt-example">"Trace the loop"</p>
+<p>Pure maths, number theory and science calculations.</p>
+<p class="yt-example">"Peaceful queens"</p>
 </div>
 </div>
 </section>
@@ -214,7 +215,7 @@ hide:
 
 -   :lucide-sprout: **Small on purpose**
 
-    Five to sixty minutes, and never longer than the time you said you have.
+    Ten to forty-five minutes, and never longer than the time you said you have.
 
 -   :lucide-heart-handshake: **Progress you keep**
 

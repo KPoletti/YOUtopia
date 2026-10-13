@@ -4,10 +4,11 @@ import random
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 
 from sqlmodel import Session, col, func, select
 
-from youtopia import difficulty, generator
+from youtopia import difficulty, generator, judge
 from youtopia.difficulty import LevelChange
 from youtopia.generator import AISource, History, TaskTemplate
 from youtopia.models import (
@@ -15,10 +16,12 @@ from youtopia.models import (
     Domain,
     Profile,
     SkillLevel,
+    Submission,
     Task,
     TaskSource,
     TaskStatus,
 )
+from youtopia.problems import Problem, starter_source
 
 # Size of the set `today` opens with. `more_tasks` adds any number on top: no daily cap.
 DAILY_SET_SIZE = 3
@@ -210,6 +213,51 @@ def complete_task(
     return CompletionResult(task=task, level_change=level_change)
 
 
+@dataclass
+class SubmitResult:
+    task: Task
+    verdict: judge.Verdict
+    completion: CompletionResult | None = None  # set when this run completed the task
+
+
+def submit_task(
+    session: Session,
+    day: date,
+    number: int,
+    solution: Path,
+    run_tests=judge.run_tests,
+) -> SubmitResult:
+    """Run a solution against task `number`'s hidden tests and record the score.
+
+    Passing every test completes the task (a success for difficulty). A failed attempt is
+    recorded too, but never counts against you. Raises judge.JudgeError for unusable files.
+    """
+    task = _get_task(session, day, number)
+    problem = task_problem(task, number)
+    verdict = run_tests(solution, problem)
+    session.add(Submission(task_id=task.id, passed=verdict.passed, total=verdict.total))
+    completion = None
+    if verdict.accepted and task.status != TaskStatus.DONE:
+        completion = complete_task(session, day, number)
+    session.flush()
+    return SubmitResult(task, verdict, completion)
+
+
+def starter_for(session: Session, day: date, number: int) -> tuple[Task, str]:
+    """Task `number` and a solution skeleton for it."""
+    task = _get_task(session, day, number)
+    problem = task_problem(task, number)
+    return task, starter_source(task.title, task.instructions, problem)
+
+
+def task_problem(task: Task, number: int) -> Problem:
+    if not task.problem:
+        raise DailyError(
+            f"Task {number} has no tests to run. Mark it done with `youtopia done {number}`."
+        )
+    return Problem.from_json(task.problem)
+
+
 def evaluate_misses(session: Session, profile: Profile, day: date) -> list[LevelChange]:
     """Count tasks from past days that are still `offered` as misses, once each.
 
@@ -272,6 +320,7 @@ def _task_from(
         offered_on=day,
         slot=slot,
         source=source,
+        problem=template.problem.to_json() if template.problem else None,
     )
 
 

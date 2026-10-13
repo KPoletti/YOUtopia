@@ -38,6 +38,33 @@
     });
   }
 
+  // Hero headline: show "takes", delete it letter by letter, then type "makes".
+  // Without JS, or with reduced motion, the final word is shown from the start.
+  function retype() {
+    const el = document.querySelector(".yt-retype");
+    if (!el || reduceMotion.matches || el.dataset.ytRetype) return;
+    el.dataset.ytRetype = "on";
+    const from = el.dataset.from;
+    const to = el.dataset.to;
+    const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+    (async () => {
+      el.textContent = from;
+      el.classList.add("is-typing");
+      await wait(1400);
+      for (let i = from.length - 1; i >= 0; i--) {
+        el.textContent = from.slice(0, i);
+        await wait(90);
+      }
+      await wait(350);
+      for (let i = 1; i <= to.length; i++) {
+        el.textContent = to.slice(0, i);
+        await wait(130);
+      }
+      await wait(1200);
+      el.classList.remove("is-typing");
+    })();
+  }
+
   // Full-width sections need the page width without the scrollbar. Browsers disagree on
   // whether 100vw includes it, so measure it.
   function measureWidth() {
@@ -52,6 +79,7 @@
     measureWidth();
     reveal();
     parallax();
+    retype();
   }
 
   // With instant navigation, document$ emits on every page load.

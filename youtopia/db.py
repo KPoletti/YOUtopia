@@ -30,6 +30,7 @@ ADDED_COLUMNS = {
     "task": {
         "source": "VARCHAR NOT NULL DEFAULT 'TEMPLATE'",  # enum values are stored by name
         "declined_at": "DATETIME",
+        "problem": "JSON",
     },
 }
 

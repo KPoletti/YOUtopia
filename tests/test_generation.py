@@ -15,15 +15,29 @@ from youtopia.providers.fake import FakeProvider
 DAY = date(2026, 10, 13)
 
 
+# A valid problem for AI fixtures: add two numbers.
+PROBLEM = {
+    "function": "add_up",
+    "signature": "def add_up(a: int, b: int) -> int:",
+    "compare": "exact",
+    "tests": [
+        {"args": [1, 2], "expected": 3},
+        {"args": [0, 0], "expected": 0},
+        {"args": [-4, 9], "expected": 5},
+    ],
+}
+
+
 def draft(domain="production", **overrides) -> dict:
     task = {
         "title": f"A fresh {domain} idea",
         "domain": domain,
         "difficulty": 2,
         "duration_minutes": 10,
-        "instructions": "Spend ten minutes on something small and specific at home.",
-        "done_criteria": "You did it.",
+        "instructions": "Add the two numbers.\n\nExample 1:\n  add_up(1, 2) -> 3",
+        "done_criteria": "All hidden tests pass.",
         "requires": [],
+        **PROBLEM,
     }
     return task | overrides
 
@@ -102,6 +116,11 @@ def test_too_few_tasks_are_topped_up_per_slot(session, profile):
         {"requires": ["telepathy"]},
         {"title": "x" * 200},
         {"instructions": ""},
+        {"signature": "def add_up(a=__import__('os'), b=2):"},  # code in the signature
+        {"function": "other"},  # signature doesn't define it
+        {"tests": PROBLEM["tests"][:2]},  # too few hidden tests
+        {"tests": [{"args": [1, 2]}] * 3},  # no expected values
+        {"compare": "vibes"},
     ],
 )
 def test_bad_drafts_are_dropped_individually(session, profile, overrides):

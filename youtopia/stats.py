@@ -6,7 +6,7 @@ from datetime import date
 
 from sqlmodel import Session, col, select
 
-from youtopia.models import Completion, Domain, SkillLevel, Task
+from youtopia.models import Completion, Domain, SkillLevel, Submission, Task
 
 # A streak survives this many missed days in a row; missing days never resets totals.
 STREAK_GRACE_DAYS = 2
@@ -31,6 +31,7 @@ class HistoryEntry:
     title: str
     domain: Domain
     note: str | None
+    score: str | None = None  # best "passed/total" from `youtopia submit`, if any
 
 
 @dataclass
@@ -43,6 +44,7 @@ class Stats:
     history: list[HistoryEntry]
     milestones: list[str]
     next_milestone: str | None
+    solved_by_tests: int = 0  # completions where every hidden test passed
 
 
 def streak_runs(active_days: list[date]) -> list[list[date]]:
@@ -88,6 +90,11 @@ def compute_stats(session: Session, today: date) -> Stats:
     active = [task.offered_on for task, _ in rows]
     best = max((len(run) for run in streak_runs(active)), default=0)
     reached, upcoming = milestones(len(rows), best, len(per_domain))
+    best_scores: dict[int, tuple[int, int]] = {}
+    for sub in session.exec(select(Submission)):
+        if sub.task_id not in best_scores or sub.passed > best_scores[sub.task_id][0]:
+            best_scores[sub.task_id] = (sub.passed, sub.total)
+    solved = sum(1 for p, t in best_scores.values() if t and p == t)
 
     return Stats(
         domains=[
@@ -104,9 +111,16 @@ def compute_stats(session: Session, today: date) -> Stats:
         current_streak=current_streak(active, today),
         best_streak=best,
         history=[
-            HistoryEntry(day=task.offered_on, title=task.title, domain=task.domain, note=c.note)
+            HistoryEntry(
+                day=task.offered_on,
+                title=task.title,
+                domain=task.domain,
+                note=c.note,
+                score="{}/{}".format(*best_scores[task.id]) if task.id in best_scores else None,
+            )
             for task, c in rows[:HISTORY_LIMIT]
         ],
         milestones=reached,
         next_milestone=upcoming,
+        solved_by_tests=solved,
     )

@@ -117,6 +117,8 @@ class Task(SQLModel, table=True):
     status: TaskStatus = TaskStatus.OFFERED
     source: TaskSource = TaskSource.TEMPLATE
     declined_at: datetime | None = None
+    # The function to write and its hidden tests (problems.Problem.to_json()), if any.
+    problem: dict | None = Field(default=None, sa_column=Column(JSON, nullable=True))
 
 
 class Completion(SQLModel, table=True):
@@ -124,6 +126,20 @@ class Completion(SQLModel, table=True):
     task_id: int = Field(foreign_key="task.id", index=True)
     completed_at: datetime = Field(default_factory=_now)
     note: str | None = None
+
+
+class Submission(SQLModel, table=True):
+    """One `youtopia submit` run: how many hidden tests a solution passed."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    task_id: int = Field(foreign_key="task.id", index=True)
+    submitted_at: datetime = Field(default_factory=_now)
+    passed: int = Field(ge=0)
+    total: int = Field(ge=0)
+
+    @property
+    def accepted(self) -> bool:
+        return self.total > 0 and self.passed == self.total
 
 
 class AIUsage(SQLModel, table=True):

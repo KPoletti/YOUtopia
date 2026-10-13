@@ -296,6 +296,32 @@ Product decisions made during this work, and where they live:
   `youtopia more [N]` adds any number on top. AI calls remain capped by
   `ai.max_calls_per_day`; past the cap, extras come from the library.
 
+## Problems and evaluation
+
+Every task is now a LeetCode-style problem, and solutions are checked by running them.
+
+- **Library:** the 70 templates are coding problems themed on their area (labour: arrays
+  and greedy; production: strings; chores: grids and scheduling; outreach: graphs;
+  training: search and DP; caretaking: arrays and grids; tickets: maths and science), two
+  per area and level. Each has a statement, two examples, constraints, a function
+  signature and 6 hidden tests.
+- **Correctness:** `tests/reference_solutions.py` solves every problem, and
+  `tests/test_templates.py` runs each template's hidden tests through the real judge
+  against it.
+- **`youtopia submit N FILE`:** runs the function in a separate process (`python -I`, empty
+  temp dir, no API keys in the environment, 10 s, 1 GB) and prints a per-test result, the
+  score and the first failing case. All passing completes the task; every attempt is stored
+  as a `Submission`, and `stats` shows best scores. **`youtopia starter N`** writes a skeleton.
+- **AI problems** (prompt `tasks-v2`) carry a function, signature and 3–12 tests. Signatures
+  are restricted to names and type hints, and model-written code never runs, so AI tests
+  can't be verified; `submit` says when tests came from AI.
+- `done` still works, as an unverified completion.
+
+**Security checks:** signature pattern tests (defaults, calls, decorators and extra lines
+rejected); starter files keep untrusted text in comments; the judge's environment has no
+keys and its working directory is thrown away. M8 should consider a real sandbox for the
+judge.
+
 ---
 
 ## M8: Security and privacy hardening

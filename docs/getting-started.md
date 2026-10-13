@@ -58,8 +58,9 @@ Running `init` again updates your profile. Your progress is always kept. HR neve
 youtopia today            # see today's three tasks
 youtopia more 2           # want extra? there's no daily limit
 youtopia swap 2           # not feeling task 2? get another, no questions asked
-youtopia done 1           # finished task 1
-youtopia done 3 --note "harder than it looked"
+youtopia starter 1        # write task_1.py: the problem, signature and a sample call
+youtopia submit 1 task_1.py   # run the hidden tests; all passing marks it done
+youtopia done 3 --note "solved it on paper"   # or mark one done yourself, unverified
 youtopia stats            # levels, recent history, streaks and milestones
 ```
 
